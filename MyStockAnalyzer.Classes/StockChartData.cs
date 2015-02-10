@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyStockAnalyzer.Models
+namespace MyStockAnalyzer.Classes
 {
     public class StockChartData
     {

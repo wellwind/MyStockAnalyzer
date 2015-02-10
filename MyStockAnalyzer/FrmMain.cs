@@ -6,13 +6,15 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.VisualBasic.FileIO;
+using MyStockAnalyzer.Classes;
 using MyStockAnalyzer.Helpers;
 using MyStockAnalyzer.Models;
-using Microsoft.VisualBasic.FileIO;
-using System.Threading;
 using MyStockAnalyzer.StockSelectionAlgorithms;
+using MyStockAnalyzer.StockSelectionAlgorithms.Helpers;
 using MyStockAnalyzer.StockSelectionAlgorithms.Interfaces;
 
 namespace MyStockAnalyzer
@@ -34,7 +36,7 @@ namespace MyStockAnalyzer
         /// <summary>
         /// 存放要更新的股價資訊
         /// </summary>
-        private List<StockPrice> waitedUpdateSotckPrice = new List<StockPrice>();
+        private List<MyStockAnalyzer.Classes.StockPrice> waitedUpdateSotckPrice = new List<MyStockAnalyzer.Classes.StockPrice>();
 
         public FrmMain()
         {
@@ -67,8 +69,8 @@ namespace MyStockAnalyzer
             dgvWarrantStock.Rows.Clear();
             dgvWarrantList.Rows.Clear();
 
-            List<StockData> warrantTargetList = model.GetWarrantTargetStockData();
-            foreach (StockData stock in warrantTargetList)
+            List<MyStockAnalyzer.Classes.StockData> warrantTargetList = model.GetAllStockData(true);
+            foreach (MyStockAnalyzer.Classes.StockData stock in warrantTargetList)
             {
                 dgvWarrantStock.Rows.Add(new string[] { stock.StockId, stock.StockName });
             }
@@ -76,8 +78,8 @@ namespace MyStockAnalyzer
 
         private void btnTest_Click(object sender, EventArgs e)
         {
-            StockData data = model.GetStockDataById("3086");
-            List<StockPrice> result = stockHelper.GetStockRealTimePrice(new List<StockData>() { data }, DateTime.Now.Date);
+            MyStockAnalyzer.Classes.StockData data = model.GetStockDataById("3086");
+            List<MyStockAnalyzer.Classes.StockPrice> result = stockHelper.GetStockRealTimePrice(new List<MyStockAnalyzer.Classes.StockData>() { data }, DateTime.Now.Date);
         }
 
         private void showChartDialog(string url, string title)
@@ -97,7 +99,7 @@ namespace MyStockAnalyzer
 
             // 1. 更新股票代碼
             LogHelper.SetLogMessage("下載股票代碼");
-            List<StockData> stockDataList = stockHelper.GetStockDataList();
+            List<MyStockAnalyzer.Classes.StockData> stockDataList = stockHelper.GetStockDataList();
 
             LogHelper.SetLogMessage("更新股票代碼");
             model.UpdateStockList(stockDataList);
@@ -118,13 +120,13 @@ namespace MyStockAnalyzer
         /// 擷取並更新股價資料庫
         /// </summary>
         /// <param name="stockDataList"></param>
-        private void updateAllStockPrice(List<StockData> stockDataList)
+        private void updateAllStockPrice(List<MyStockAnalyzer.Classes.StockData> stockDataList)
         {
             model.DeleteStockPriceByDateRange(dtStockBgn.Value, dtStockEnd.Value);
 
             waitedUpdateSotckPrice.Clear();
 
-            foreach (StockData stock in stockDataList)
+            foreach (MyStockAnalyzer.Classes.StockData stock in stockDataList)
             {
                 do
                 {
@@ -156,10 +158,10 @@ namespace MyStockAnalyzer
         /// <param name="obj"></param>
         private void threadDownloadStockPrice_Start(object obj)
         {
-            if (obj is StockData)
+            if (obj is MyStockAnalyzer.Classes.StockData)
             {
-                StockData stock = obj as StockData;
-                List<StockPrice> singleStockPrices = stockHelper.GetStockPriceDataList(stock, dtStockBgn.Value.Date, dtStockEnd.Value.Date);
+                MyStockAnalyzer.Classes.StockData stock = obj as MyStockAnalyzer.Classes.StockData;
+                List<MyStockAnalyzer.Classes.StockPrice> singleStockPrices = stockHelper.GetStockPriceDataList(stock, dtStockBgn.Value.Date, dtStockEnd.Value.Date);
                 lock (this)
                 {
                     waitedUpdateSotckPrice.AddRange(singleStockPrices);
@@ -229,13 +231,13 @@ namespace MyStockAnalyzer
             LogHelper.SetLogMessage("開始進行選股動作..");
 
             // 擷取即時資料
-            List<StockData> stockData = model.GetAllStockData();
-            List<StockPrice> realTimeData = new List<StockPrice>();
+            List<MyStockAnalyzer.Classes.StockData> stockData = model.GetAllStockData();
+            List<MyStockAnalyzer.Classes.StockPrice> realTimeData = new List<MyStockAnalyzer.Classes.StockPrice>();
             if (chkRealData.Checked)
             {
                 LogHelper.SetLogMessage(String.Format("下載即時資料"));
-                List<StockData> tmp = new List<StockData>();
-                foreach (StockData data in stockData)
+                List<MyStockAnalyzer.Classes.StockData> tmp = new List<MyStockAnalyzer.Classes.StockData>();
+                foreach (MyStockAnalyzer.Classes.StockData data in stockData)
                 {
                     tmp.Add(data);
                     if (tmp.Count >= 50)
@@ -252,10 +254,10 @@ namespace MyStockAnalyzer
             }
            
             // 分析股票資料
-            foreach (StockData data in stockData)
+            foreach (MyStockAnalyzer.Classes.StockData data in stockData)
             {
-                Dictionary<string, List<StockPrice>> stockPrice = model.GetStockPriceData(new string[] { data.StockId }, dtSelectionBgn.Value.Date.AddMonths(-12), dtSelectionEnd.Value.Date);
-                foreach (KeyValuePair<string, List<StockPrice>> kvp in stockPrice)
+                Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> stockPrice = model.GetStockPriceData(new string[] { data.StockId }, dtSelectionBgn.Value.Date.AddMonths(-12), dtSelectionEnd.Value.Date);
+                foreach (KeyValuePair<string, List<MyStockAnalyzer.Classes.StockPrice>> kvp in stockPrice)
                 {
                     if (chkRealData.Checked && realTimeData.Where(x => x.StockId == kvp.Key).Count() > 0)
                     {
@@ -310,7 +312,7 @@ namespace MyStockAnalyzer
                 {
                     sb.AppendLine(String.Format("{0},{1},{2},{3},{4},{5}",
                         row.Cells["colSelectionDate"].Value.ToString(), row.Cells["colSelectionStockId"].Value.ToString(), row.Cells["colSelectionStockName"].Value.ToString(),
-                        row.Cells["colSelectionMethod"].Value.ToString(), row.Cells["colSelectionWarrant"].Value.ToString(),
+                        row.Cells["colSelectionMethod"].Value.ToString(), (row.Cells["colSelectionWarrant"].Value == null ? "" : row.Cells["colSelectionWarrant"].Value.ToString()),
                         String.Join(",", row.Cells["colSelectionMemo"].Value.ToString().Split(new string[] { ";", ":" }, StringSplitOptions.None))));
                 }
 
@@ -323,7 +325,7 @@ namespace MyStockAnalyzer
         {
             if (e.ColumnIndex == colSelectionStockId.Index)
             {
-                showChartDialog(String.Format("http://www.wantgoo.com/Stock2/Chart/?StockNo={0}", dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockId.Name].Value.ToString()),
+                showChartDialog(String.Format("http://histock.tw/stock/tchart.aspx?no={0}&m=b#twDayK1_pnlChart", dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockId.Name].Value.ToString()),
                     dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockId.Name].Value.ToString() + "-" + dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockName.Name].Value.ToString());
             }
         }

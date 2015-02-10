@@ -73,7 +73,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\AlgorithmDescription.cs" />
     <Compile Include="FrmAlgorithm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -92,25 +91,13 @@
     <Compile Include="FrmMain.Designer.cs">
       <DependentUpon>FrmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\ConfigHelper.cs" />
-    <Compile Include="Helpers\CSVHelper.cs" />
-    <Compile Include="Helpers\DateTimeHelper.cs" />
-    <Compile Include="Helpers\HtmlRemovalHelper.cs" />
-    <Compile Include="Helpers\HttpHelper.cs" />
-    <Compile Include="Helpers\LogHelper.cs" />
-    <Compile Include="Helpers\MathHelper.cs" />
-    <Compile Include="Helpers\StockAnalysisHelper.cs" />
-    <Compile Include="Helpers\StockHelper.cs" />
-    <Compile Include="Helpers\StockSelectionAlgorithmHelper.cs" />
     <Compile Include="Models\Memo.cs">
       <DependentUpon>StockEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\MemoModel.cs" />
-    <Compile Include="Models\StockRealData.cs" />
     <Compile Include="Models\SelectionHistory.cs">
       <DependentUpon>StockEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\StockChartData.cs" />
     <Compile Include="Models\StockData.cs">
       <DependentUpon>StockEntities.tt</DependentUpon>
     </Compile>
@@ -135,14 +122,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StockSelectionAlgorithms\BlackFlyDanceAlgorithm.cs" />
-    <Compile Include="StockSelectionAlgorithms\BollingerFistAlgorithm.cs" />
-    <Compile Include="StockSelectionAlgorithms\BreakBoxAlgorithm.cs" />
-    <Compile Include="StockSelectionAlgorithms\FlyDragonAlgorithm.cs" />
-    <Compile Include="StockSelectionAlgorithms\Interfaces\IStockSelectionAlgorithm.cs" />
-    <Compile Include="StockSelectionAlgorithms\Interfaces\IStockSelectionConditionDefault.cs" />
-    <Compile Include="StockSelectionAlgorithms\Interfaces\IStockSelectionConditionWarrant.cs" />
-    <Compile Include="StockSelectionAlgorithms\StockSelectionResult.cs" />
     <EmbeddedResource Include="FrmAlgorithm.resx">
       <DependentUpon>FrmAlgorithm.cs</DependentUpon>
     </EmbeddedResource>
@@ -197,7 +176,20 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\MyStockAnalyzer.Classes\MyStockAnalyzer.Classes.csproj">
+      <Project>{4c501544-5084-4414-a213-eae098b7e4b4}</Project>
+      <Name>MyStockAnalyzer.Classes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MyStockAnalyzer.Helpers\MyStockAnalyzer.Helpers.csproj">
+      <Project>{3d379a4d-5e5b-4852-b756-639c65dd2d9e}</Project>
+      <Name>MyStockAnalyzer.Helpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MyStockAnalyzer.StockSelectionAlgorithms\MyStockAnalyzer.StockSelectionAlgorithms.csproj">
+      <Project>{17e03906-6e92-4d6c-a09b-8920296430c8}</Project>
+      <Name>MyStockAnalyzer.StockSelectionAlgorithms</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.94.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.94.0\build\net45\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

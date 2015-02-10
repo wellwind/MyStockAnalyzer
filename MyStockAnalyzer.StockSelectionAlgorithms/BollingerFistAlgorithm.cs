@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MyStockAnalyzer.Attributes;
+using MyStockAnalyzer.Classes;
 using MyStockAnalyzer.Helpers;
-using MyStockAnalyzer.Models;
+using MyStockAnalyzer.StockSelectionAlgorithms.Attributes;
 using MyStockAnalyzer.StockSelectionAlgorithms.Interfaces;
 
 namespace MyStockAnalyzer.StockSelectionAlgorithms

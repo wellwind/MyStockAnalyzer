@@ -8,9 +8,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MyStockAnalyzer.Attributes;
 using MyStockAnalyzer.Helpers;
 using MyStockAnalyzer.StockSelectionAlgorithms;
+using MyStockAnalyzer.StockSelectionAlgorithms.Helpers;
 using MyStockAnalyzer.StockSelectionAlgorithms.Interfaces;
 
 namespace MyStockAnalyzer

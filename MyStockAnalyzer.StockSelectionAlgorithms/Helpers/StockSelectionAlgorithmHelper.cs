@@ -4,10 +4,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using MyStockAnalyzer.Attributes;
+using MyStockAnalyzer.StockSelectionAlgorithms.Attributes;
 using MyStockAnalyzer.StockSelectionAlgorithms.Interfaces;
 
-namespace MyStockAnalyzer.Helpers
+namespace MyStockAnalyzer.StockSelectionAlgorithms.Helpers
 {
     public class StockSelectionAlgorithmHelper
     {

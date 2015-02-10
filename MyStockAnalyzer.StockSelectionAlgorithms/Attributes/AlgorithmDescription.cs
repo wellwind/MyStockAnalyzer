@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyStockAnalyzer.Attributes
+namespace MyStockAnalyzer.StockSelectionAlgorithms.Attributes
 {
     [System.AttributeUsage(System.AttributeTargets.Class)]
     public class AlgorithmDescriptionAttribute : System.Attribute

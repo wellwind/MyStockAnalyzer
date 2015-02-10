@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using MyStockAnalyzer.Models;
+using MyStockAnalyzer.Classes;
 using Newtonsoft.Json;
 
 namespace MyStockAnalyzer.Helpers
@@ -20,14 +20,14 @@ namespace MyStockAnalyzer.Helpers
         /// <param name="bgnDate"></param>
         /// <param name="endDate"></param>
         /// <returns></returns>
-        public List<StockPrice> GetStockPriceDataList(StockData stock, DateTime bgnDate, DateTime endDate)
+        public List<MyStockAnalyzer.Classes.StockPrice> GetStockPriceDataList(MyStockAnalyzer.Classes.StockData stock, DateTime bgnDate, DateTime endDate)
         {
-            List<StockPrice> result = new List<StockPrice>();
+            List<MyStockAnalyzer.Classes.StockPrice> result = new List<MyStockAnalyzer.Classes.StockPrice>();
             // 列舉每個月分出來
             for (DateTime fetchDate = bgnDate; fetchDate <= endDate; fetchDate = fetchDate.AddMonths(1))
             {
                 // 抓取股票價格
-                List<StockPrice> stockPrices = downloadStockPriceData(stock, fetchDate, stock.Class == "上市" ? "1" : "2");
+                List<MyStockAnalyzer.Classes.StockPrice> stockPrices = downloadStockPriceData(stock, fetchDate, stock.Class == "上市" ? "1" : "2");
                 result.AddRange(stockPrices.Where(s => s.Date >= bgnDate && s.Date <= endDate));
             }
 
@@ -238,9 +238,9 @@ namespace MyStockAnalyzer.Helpers
         /// <param name="fetchDate"></param>
         /// <param name="type">1: 上市, 2: 上櫃</param>
         /// <returns></returns>
-        private List<StockPrice> downloadStockPriceData(StockData stock, DateTime fetchDate, string type)
+        private List<MyStockAnalyzer.Classes.StockPrice> downloadStockPriceData(MyStockAnalyzer.Classes.StockData stock, DateTime fetchDate, string type)
         {
-            List<StockPrice> result = new List<StockPrice>();
+            List<MyStockAnalyzer.Classes.StockPrice> result = new List<MyStockAnalyzer.Classes.StockPrice>();
             string downloadUrl = String.Format(type == "1" ? ConfigHelper.StockPriceUrl1 : ConfigHelper.StockPriceUrl2,
                 type == "1" ? fetchDate.Year.ToString() : (fetchDate.Year - 1911).ToString("000"), fetchDate.Month.ToString("00"), stock.StockId);
 

@@ -15,11 +15,13 @@ namespace MyStockAnalyzer.Models
             _db = new StockEntities();
         }
 
+        #region 取得股票名稱資訊
+
         /// <summary>
         /// 取得所有股票名稱資訊
         /// </summary>
         /// <returns></returns>
-        public List<StockData> GetAllStockData()
+        public List<MyStockAnalyzer.Classes.StockData> GetAllStockData()
         {
             return GetAllStockData(false);
         }
@@ -29,34 +31,81 @@ namespace MyStockAnalyzer.Models
         /// </summary>
         /// <param name="warrantOnly">只取出有權證的股票</param>
         /// <returns></returns>
-        public List<StockData> GetAllStockData(bool warrantOnly)
+        public List<MyStockAnalyzer.Classes.StockData> GetAllStockData(bool warrantOnly)
         {
             if (warrantOnly)
             {
-                return (from s in _db.StockData where s.WarrantTarget == "Y" orderby s.Class, s.StockId select s).ToList();
+                var dat = from s in _db.StockData
+                          where s.WarrantTarget == "Y"
+                          orderby s.Class, s.StockId
+                          select new MyStockAnalyzer.Classes.StockData()
+                          {
+                              Class = s.Class,
+                              Industry = s.Industry,
+                              StockId = s.StockId,
+                              StockName = s.StockName,
+                              WarrantTarget = s.WarrantTarget,
+                              Updated = s.Updated
+                          };
+                return dat.ToList();
             }
             else
             {
-                return (from s in _db.StockData orderby s.Class, s.StockId select s).ToList();
+                var dat = from s in _db.StockData
+                          orderby s.Class, s.StockId
+                          select new MyStockAnalyzer.Classes.StockData()
+                          {
+                              Class = s.Class,
+                              Industry = s.Industry,
+                              StockId = s.StockId,
+                              StockName = s.StockName,
+                              WarrantTarget = s.WarrantTarget,
+                              Updated = s.Updated
+                          };
+                return dat.ToList();
             }
         }
 
-        public List<StockData> GetStockData(string[] stockIds)
+        public List<MyStockAnalyzer.Classes.StockData> GetStockData(string[] stockIds)
         {
-            return (from s in _db.StockData where stockIds.Contains(s.StockId) orderby s.Class, s.StockId select s).ToList();
+            return (from s in _db.StockData
+                    where stockIds.Contains(s.StockId)
+                    orderby s.Class, s.StockId
+                    select new MyStockAnalyzer.Classes.StockData()
+                    {
+                        Class = s.Class,
+                        Industry = s.Industry,
+                        StockId = s.StockId,
+                        StockName = s.StockName,
+                        WarrantTarget = s.WarrantTarget,
+                        Updated = s.Updated
+                    }).ToList();
         }
 
-        public StockData GetStockDataById(string stockId)
+        public MyStockAnalyzer.Classes.StockData GetStockDataById(string stockId)
         {
-            return (from s in _db.StockData where stockId == s.StockId orderby s.Class, s.StockId select s).SingleOrDefault();
+            return (from s in _db.StockData
+                    where stockId == s.StockId
+                    orderby s.Class, s.StockId
+                    select new MyStockAnalyzer.Classes.StockData()
+                    {
+                        Class = s.Class,
+                        Industry = s.Industry,
+                        StockId = s.StockId,
+                        StockName = s.StockName,
+                        WarrantTarget = s.WarrantTarget,
+                        Updated = s.Updated
+                    }).SingleOrDefault();
         }
+
+        #endregion
 
         #region 取得股價資訊
         /// <summary>
         /// 取得所有的股票價格資訊
         /// </summary>
         /// <returns></returns>
-        public Dictionary<string, List<StockPrice>> GetStockPriceData()
+        public Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> GetStockPriceData()
         {
             IQueryable<StockPrice> data = from s in _db.StockPrice select s;
             return queryStockPriceDataListToDictionary(data);
@@ -67,7 +116,7 @@ namespace MyStockAnalyzer.Models
         /// </summary>
         /// <param name="dtBgn"></param>
         /// <returns></returns>
-        public Dictionary<string, List<StockPrice>> GetStockPriceData(DateTime dtBgn)
+        public Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> GetStockPriceData(DateTime dtBgn)
         {
             IQueryable<StockPrice> data = from s in _db.StockPrice where s.Date >= dtBgn.Date select s;
             return queryStockPriceDataListToDictionary(data);
@@ -79,7 +128,7 @@ namespace MyStockAnalyzer.Models
         /// <param name="dtBgn"></param>
         /// <param name="dtEnd"></param>
         /// <returns></returns>
-        public Dictionary<string, List<StockPrice>> GetStockPriceData(DateTime dtBgn, DateTime dtEnd)
+        public Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> GetStockPriceData(DateTime dtBgn, DateTime dtEnd)
         {
             IQueryable<StockPrice> data = from s in _db.StockPrice where s.Date >= dtBgn.Date && s.Date <= dtEnd.Date select s;
             return queryStockPriceDataListToDictionary(data);
@@ -90,7 +139,7 @@ namespace MyStockAnalyzer.Models
         /// </summary>
         /// <param name="stockId"></param>
         /// <returns></returns>
-        public Dictionary<string, List<StockPrice>> GetStockPriceData(string[] stockId)
+        public Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> GetStockPriceData(string[] stockId)
         {
             IQueryable<StockPrice> data = from s in _db.StockPrice where stockId.Contains(s.StockId) select s;
             return queryStockPriceDataListToDictionary(data);
@@ -102,7 +151,7 @@ namespace MyStockAnalyzer.Models
         /// <param name="stockId"></param>
         /// <param name="dtBgn"></param>
         /// <returns></returns>
-        public Dictionary<string, List<StockPrice>> GetStockPriceData(string[] stockId, DateTime dtBgn)
+        public Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> GetStockPriceData(string[] stockId, DateTime dtBgn)
         {
             IQueryable<StockPrice> data = from s in _db.StockPrice where stockId.Contains(s.StockId) && s.Date >= dtBgn.Date select s;
             return queryStockPriceDataListToDictionary(data);
@@ -115,23 +164,32 @@ namespace MyStockAnalyzer.Models
         /// <param name="dtBgn"></param>
         /// <param name="dtEnd"></param>
         /// <returns></returns>
-        public Dictionary<string, List<StockPrice>> GetStockPriceData(string[] stockId, DateTime dtBgn, DateTime dtEnd)
+        public Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> GetStockPriceData(string[] stockId, DateTime dtBgn, DateTime dtEnd)
         {
             IQueryable<StockPrice> data = (from s in _db.StockPrice where stockId.Contains(s.StockId) && s.Date >= dtBgn.Date && s.Date <= dtEnd.Date select s);
             return queryStockPriceDataListToDictionary(data);
         }
 
-        private Dictionary<string, List<StockPrice>> queryStockPriceDataListToDictionary(IQueryable<StockPrice> data)
+        private Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> queryStockPriceDataListToDictionary(IQueryable<StockPrice> data)
         {
-            Dictionary<string, List<StockPrice>> result = new Dictionary<string, List<StockPrice>>();
+            Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> result = new Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>>();
             foreach (StockPrice price in data)
             {
                 if (!result.ContainsKey(price.StockId))
                 {
-                    result.Add(price.StockId, new List<StockPrice>());
+                    result.Add(price.StockId, new List<MyStockAnalyzer.Classes.StockPrice>());
                 }
 
-                result[price.StockId].Add(price);
+                result[price.StockId].Add(new MyStockAnalyzer.Classes.StockPrice()
+                {
+                    Date = price.Date,
+                    StockId = price.StockId,
+                    Open = price.Open,
+                    High = price.High,
+                    Low = price.Low,
+                    Close = price.Close,
+                    Amount = price.Amount
+                });
             }
 
             return result;
@@ -140,29 +198,22 @@ namespace MyStockAnalyzer.Models
         #endregion
 
         /// <summary>
-        /// 取得可為權證標的的股票
-        /// </summary>
-        /// <returns></returns>
-        public List<StockData> GetWarrantTargetStockData()
-        {
-            return (from s in _db.StockData orderby s.StockId where s.WarrantTarget == "Y" select s).ToList();
-        }
-
-        /// <summary>
         /// 更新股票代碼資訊
         /// </summary>
         /// <param name="stockDataList"></param>
-        public void UpdateStockList(List<StockData> stockDataList)
+        public void UpdateStockList(List<MyStockAnalyzer.Classes.StockData> stockDataList)
         {
             DateTime current = DateTime.Now;
             string[] stockIds = stockDataList.Select(x => x.StockId).ToArray();
             // 1. 先找出包含在資料庫的部分
-            var existStockData = from s in _db.StockData where stockIds.Contains(s.StockId) select s;
-            foreach (StockData stock in existStockData)
+            var existStockData = from s in _db.StockData
+                                 where stockIds.Contains(s.StockId)
+                                 select s;
+            foreach (MyStockAnalyzer.Models.StockData stock in existStockData)
             {
                 // 內容不一樣則更新
-                StockData compareStock = stockDataList.Where(x => x.StockId == stock.StockId).First();
-                if (!compareStock.Equals(stock))
+                MyStockAnalyzer.Classes.StockData compareStock = stockDataList.Where(x => x.StockId == stock.StockId).First();
+                if (compareStock.StockName != stock.StockName || compareStock.Class != stock.Class || compareStock.Industry != stock.Industry || compareStock.WarrantTarget != stock.WarrantTarget)
                 {
                     stock.StockName = compareStock.StockName;
                     stock.Class = compareStock.Class;
@@ -176,10 +227,18 @@ namespace MyStockAnalyzer.Models
             // 2. 將不在資料庫的部分新增
             string[] existStockIds = existStockData.Select(x => x.StockId).ToArray();
             var nonExistStockData = from s in stockDataList where !existStockIds.Contains(s.StockId) select s;
-            foreach (StockData stock in nonExistStockData)
+            foreach (MyStockAnalyzer.Classes.StockData stock in nonExistStockData)
             {
                 stock.Updated = current;
-                _db.StockData.Add(stock);
+                _db.StockData.Add(new MyStockAnalyzer.Models.StockData()
+                {
+                    Class = stock.Class,
+                    Industry = stock.Industry,
+                    StockId = stock.StockId,
+                    StockName = stock.StockName,
+                    WarrantTarget = stock.WarrantTarget,
+                    Updated = stock.Updated
+                });
             }
 
             _db.SaveChanges();
@@ -189,7 +248,7 @@ namespace MyStockAnalyzer.Models
         /// 更新股價資訊
         /// </summary>
         /// <param name="stockPriceList"></param>
-        public void UpdateStockPriceList(List<StockPrice> stockPriceList)
+        public void UpdateStockPriceList(List<MyStockAnalyzer.Classes.StockPrice> stockPriceList)
         {
             if (stockPriceList.Count() == 0) return;
 
@@ -207,7 +266,16 @@ namespace MyStockAnalyzer.Models
             //    //    _db.StockPrice.Add(stock);
             //    //}
             //}
-            _db.StockPrice.AddRange(stockPriceList);
+            _db.StockPrice.AddRange(stockPriceList.Select(x => new StockPrice()
+            {
+                Date = x.Date,
+                StockId = x.StockId,
+                Open = x.Open,
+                High = x.High,
+                Low = x.Low,
+                Close = x.Close,
+                Amount = x.Amount,
+            }).ToArray());
             _db.SaveChanges();
         }
 
