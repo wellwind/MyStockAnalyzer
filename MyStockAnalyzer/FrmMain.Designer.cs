@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(1111D, "1,2,3,4");
             this.btnUpdateStockData = new System.Windows.Forms.Button();
             this.dtStockBgn = new System.Windows.Forms.DateTimePicker();
             this.dtStockEnd = new System.Windows.Forms.DateTimePicker();
@@ -40,6 +44,14 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tpSelection = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.lblAlgorithms = new System.Windows.Forms.Label();
+            this.dtSelectionBgn = new System.Windows.Forms.DateTimePicker();
+            this.linkLblAlgorithms = new System.Windows.Forms.LinkLabel();
+            this.btnSelection = new System.Windows.Forms.Button();
+            this.chkRealData = new System.Windows.Forms.CheckBox();
+            this.dtSelectionEnd = new System.Windows.Forms.DateTimePicker();
+            this.label3 = new System.Windows.Forms.Label();
             this.dgvSelectionResult = new System.Windows.Forms.DataGridView();
             this.colSelectionDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colSelectionStockId = new System.Windows.Forms.DataGridViewLinkColumn();
@@ -47,13 +59,6 @@
             this.colSelectionMethod = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colSelectionWarrant = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colSelectionMemo = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.dtSelectionBgn = new System.Windows.Forms.DateTimePicker();
-            this.linkLblAlgorithms = new System.Windows.Forms.LinkLabel();
-            this.btnSelection = new System.Windows.Forms.Button();
-            this.chkRealData = new System.Windows.Forms.CheckBox();
-            this.dtSelectionEnd = new System.Windows.Forms.DateTimePicker();
-            this.label3 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.cmbSelectionWaitCollect = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -83,14 +88,14 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.saveCSVDialog = new System.Windows.Forms.SaveFileDialog();
-            this.lblAlgorithms = new System.Windows.Forms.Label();
             this.toolTips = new System.Windows.Forms.ToolTip(this.components);
+            this.chartKBar = new System.Windows.Forms.DataVisualization.Charting.Chart();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLog)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tpSelection.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvSelectionResult)).BeginInit();
             this.panel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSelectionResult)).BeginInit();
             this.panel2.SuspendLayout();
             this.tpWarrant.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -103,6 +108,7 @@
             this.tableLayoutPanel4.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chartKBar)).BeginInit();
             this.SuspendLayout();
             // 
             // btnUpdateStockData
@@ -157,13 +163,13 @@
             this.colTime,
             this.colRecord});
             this.dgvLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvLog.Location = new System.Drawing.Point(3, 497);
+            this.dgvLog.Location = new System.Drawing.Point(3, 565);
             this.dgvLog.MultiSelect = false;
             this.dgvLog.Name = "dgvLog";
             this.dgvLog.RowHeadersVisible = false;
             this.dgvLog.RowTemplate.Height = 24;
             this.dgvLog.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvLog.Size = new System.Drawing.Size(1189, 244);
+            this.dgvLog.Size = new System.Drawing.Size(1178, 194);
             this.dgvLog.TabIndex = 4;
             // 
             // colTime
@@ -183,7 +189,7 @@
             // linkLblClearLog
             // 
             this.linkLblClearLog.AutoSize = true;
-            this.linkLblClearLog.Location = new System.Drawing.Point(3, 478);
+            this.linkLblClearLog.Location = new System.Drawing.Point(3, 546);
             this.linkLblClearLog.Name = "linkLblClearLog";
             this.linkLblClearLog.Size = new System.Drawing.Size(72, 16);
             this.linkLblClearLog.TabIndex = 5;
@@ -199,10 +205,10 @@
             this.tabControl1.Controls.Add(this.tpHistoryCollect);
             this.tabControl1.Controls.Add(this.tpMemo);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(3, 53);
+            this.tabControl1.Location = new System.Drawing.Point(3, 253);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1189, 422);
+            this.tabControl1.Size = new System.Drawing.Size(1178, 290);
             this.tabControl1.TabIndex = 6;
             // 
             // tpSelection
@@ -211,7 +217,7 @@
             this.tpSelection.Location = new System.Drawing.Point(4, 26);
             this.tpSelection.Name = "tpSelection";
             this.tpSelection.Padding = new System.Windows.Forms.Padding(3);
-            this.tpSelection.Size = new System.Drawing.Size(1181, 392);
+            this.tpSelection.Size = new System.Drawing.Size(1170, 260);
             this.tpSelection.TabIndex = 1;
             this.tpSelection.Text = "選股";
             this.tpSelection.UseVisualStyleBackColor = true;
@@ -232,79 +238,8 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(1175, 386);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(1164, 254);
             this.tableLayoutPanel2.TabIndex = 18;
-            // 
-            // dgvSelectionResult
-            // 
-            this.dgvSelectionResult.AllowUserToAddRows = false;
-            this.dgvSelectionResult.AllowUserToDeleteRows = false;
-            this.dgvSelectionResult.AllowUserToOrderColumns = true;
-            this.dgvSelectionResult.AllowUserToResizeColumns = false;
-            this.dgvSelectionResult.AllowUserToResizeRows = false;
-            this.dgvSelectionResult.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvSelectionResult.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvSelectionResult.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colSelectionDate,
-            this.colSelectionStockId,
-            this.colSelectionStockName,
-            this.colSelectionMethod,
-            this.colSelectionWarrant,
-            this.colSelectionMemo});
-            this.tableLayoutPanel2.SetColumnSpan(this.dgvSelectionResult, 2);
-            this.dgvSelectionResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvSelectionResult.Location = new System.Drawing.Point(3, 83);
-            this.dgvSelectionResult.Name = "dgvSelectionResult";
-            this.dgvSelectionResult.RowHeadersVisible = false;
-            this.dgvSelectionResult.RowTemplate.Height = 24;
-            this.dgvSelectionResult.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvSelectionResult.Size = new System.Drawing.Size(1169, 300);
-            this.dgvSelectionResult.TabIndex = 12;
-            this.dgvSelectionResult.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvSelectionResult_CellContentClick);
-            // 
-            // colSelectionDate
-            // 
-            this.colSelectionDate.FillWeight = 13F;
-            this.colSelectionDate.HeaderText = "時間";
-            this.colSelectionDate.Name = "colSelectionDate";
-            this.colSelectionDate.ReadOnly = true;
-            // 
-            // colSelectionStockId
-            // 
-            this.colSelectionStockId.FillWeight = 9F;
-            this.colSelectionStockId.HeaderText = "代碼";
-            this.colSelectionStockId.Name = "colSelectionStockId";
-            this.colSelectionStockId.ReadOnly = true;
-            this.colSelectionStockId.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.colSelectionStockId.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // colSelectionStockName
-            // 
-            this.colSelectionStockName.FillWeight = 13F;
-            this.colSelectionStockName.HeaderText = "名稱";
-            this.colSelectionStockName.Name = "colSelectionStockName";
-            this.colSelectionStockName.ReadOnly = true;
-            // 
-            // colSelectionMethod
-            // 
-            this.colSelectionMethod.FillWeight = 15F;
-            this.colSelectionMethod.HeaderText = "篩選方法";
-            this.colSelectionMethod.Name = "colSelectionMethod";
-            this.colSelectionMethod.ReadOnly = true;
-            // 
-            // colSelectionWarrant
-            // 
-            this.colSelectionWarrant.FillWeight = 8F;
-            this.colSelectionWarrant.HeaderText = "權證";
-            this.colSelectionWarrant.Name = "colSelectionWarrant";
-            this.colSelectionWarrant.ReadOnly = true;
-            // 
-            // colSelectionMemo
-            // 
-            this.colSelectionMemo.FillWeight = 52.53807F;
-            this.colSelectionMemo.HeaderText = "備註";
-            this.colSelectionMemo.Name = "colSelectionMemo";
-            this.colSelectionMemo.ReadOnly = true;
             // 
             // panel3
             // 
@@ -318,8 +253,18 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel3.Location = new System.Drawing.Point(3, 3);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(1069, 34);
+            this.panel3.Size = new System.Drawing.Size(1058, 34);
             this.panel3.TabIndex = 1;
+            // 
+            // lblAlgorithms
+            // 
+            this.lblAlgorithms.AutoSize = true;
+            this.lblAlgorithms.ForeColor = System.Drawing.Color.DarkRed;
+            this.lblAlgorithms.Location = new System.Drawing.Point(644, 9);
+            this.lblAlgorithms.Name = "lblAlgorithms";
+            this.lblAlgorithms.Size = new System.Drawing.Size(130, 16);
+            this.lblAlgorithms.TabIndex = 15;
+            this.lblAlgorithms.Text = "(尚未選擇演算法)";
             // 
             // dtSelectionBgn
             // 
@@ -383,6 +328,77 @@
             this.label3.TabIndex = 11;
             this.label3.Text = "~";
             // 
+            // dgvSelectionResult
+            // 
+            this.dgvSelectionResult.AllowUserToAddRows = false;
+            this.dgvSelectionResult.AllowUserToDeleteRows = false;
+            this.dgvSelectionResult.AllowUserToOrderColumns = true;
+            this.dgvSelectionResult.AllowUserToResizeColumns = false;
+            this.dgvSelectionResult.AllowUserToResizeRows = false;
+            this.dgvSelectionResult.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvSelectionResult.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvSelectionResult.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colSelectionDate,
+            this.colSelectionStockId,
+            this.colSelectionStockName,
+            this.colSelectionMethod,
+            this.colSelectionWarrant,
+            this.colSelectionMemo});
+            this.tableLayoutPanel2.SetColumnSpan(this.dgvSelectionResult, 2);
+            this.dgvSelectionResult.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvSelectionResult.Location = new System.Drawing.Point(3, 83);
+            this.dgvSelectionResult.Name = "dgvSelectionResult";
+            this.dgvSelectionResult.RowHeadersVisible = false;
+            this.dgvSelectionResult.RowTemplate.Height = 24;
+            this.dgvSelectionResult.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvSelectionResult.Size = new System.Drawing.Size(1158, 168);
+            this.dgvSelectionResult.TabIndex = 12;
+            this.dgvSelectionResult.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvSelectionResult_CellContentClick);
+            // 
+            // colSelectionDate
+            // 
+            this.colSelectionDate.FillWeight = 13F;
+            this.colSelectionDate.HeaderText = "時間";
+            this.colSelectionDate.Name = "colSelectionDate";
+            this.colSelectionDate.ReadOnly = true;
+            // 
+            // colSelectionStockId
+            // 
+            this.colSelectionStockId.FillWeight = 9F;
+            this.colSelectionStockId.HeaderText = "代碼";
+            this.colSelectionStockId.Name = "colSelectionStockId";
+            this.colSelectionStockId.ReadOnly = true;
+            this.colSelectionStockId.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.colSelectionStockId.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // colSelectionStockName
+            // 
+            this.colSelectionStockName.FillWeight = 13F;
+            this.colSelectionStockName.HeaderText = "名稱";
+            this.colSelectionStockName.Name = "colSelectionStockName";
+            this.colSelectionStockName.ReadOnly = true;
+            // 
+            // colSelectionMethod
+            // 
+            this.colSelectionMethod.FillWeight = 15F;
+            this.colSelectionMethod.HeaderText = "篩選方法";
+            this.colSelectionMethod.Name = "colSelectionMethod";
+            this.colSelectionMethod.ReadOnly = true;
+            // 
+            // colSelectionWarrant
+            // 
+            this.colSelectionWarrant.FillWeight = 8F;
+            this.colSelectionWarrant.HeaderText = "權證";
+            this.colSelectionWarrant.Name = "colSelectionWarrant";
+            this.colSelectionWarrant.ReadOnly = true;
+            // 
+            // colSelectionMemo
+            // 
+            this.colSelectionMemo.FillWeight = 52.53807F;
+            this.colSelectionMemo.HeaderText = "備註";
+            this.colSelectionMemo.Name = "colSelectionMemo";
+            this.colSelectionMemo.ReadOnly = true;
+            // 
             // panel2
             // 
             this.tableLayoutPanel2.SetColumnSpan(this.panel2, 2);
@@ -391,7 +407,7 @@
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(3, 43);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1169, 34);
+            this.panel2.Size = new System.Drawing.Size(1158, 34);
             this.panel2.TabIndex = 0;
             // 
             // cmbSelectionWaitCollect
@@ -414,7 +430,7 @@
             // 
             // btnSelectionExport
             // 
-            this.btnSelectionExport.Location = new System.Drawing.Point(1079, 4);
+            this.btnSelectionExport.Location = new System.Drawing.Point(1068, 4);
             this.btnSelectionExport.Margin = new System.Windows.Forms.Padding(4);
             this.btnSelectionExport.Name = "btnSelectionExport";
             this.btnSelectionExport.Size = new System.Drawing.Size(92, 31);
@@ -683,7 +699,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1189, 44);
+            this.panel1.Size = new System.Drawing.Size(1178, 44);
             this.panel1.TabIndex = 8;
             // 
             // tableLayoutPanel1
@@ -691,39 +707,51 @@
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.panel1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.linkLblClearLog, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.tabControl1, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.dgvLog, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.linkLblClearLog, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.tabControl1, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.dgvLog, 1, 4);
+            this.tableLayoutPanel1.Controls.Add(this.chartKBar, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowCount = 5;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 200F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 16F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 250F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1195, 744);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 200F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1184, 762);
             this.tableLayoutPanel1.TabIndex = 9;
             // 
             // saveCSVDialog
             // 
             this.saveCSVDialog.Filter = "CSV檔案|*.csv";
             // 
-            // lblAlgorithms
+            // chartKBar
             // 
-            this.lblAlgorithms.AutoSize = true;
-            this.lblAlgorithms.ForeColor = System.Drawing.Color.DarkRed;
-            this.lblAlgorithms.Location = new System.Drawing.Point(644, 9);
-            this.lblAlgorithms.Name = "lblAlgorithms";
-            this.lblAlgorithms.Size = new System.Drawing.Size(130, 16);
-            this.lblAlgorithms.TabIndex = 15;
-            this.lblAlgorithms.Text = "(尚未選擇演算法)";
+            chartArea1.Name = "ChartArea1";
+            this.chartKBar.ChartAreas.Add(chartArea1);
+            this.chartKBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            legend1.Name = "Legend1";
+            this.chartKBar.Legends.Add(legend1);
+            this.chartKBar.Location = new System.Drawing.Point(3, 53);
+            this.chartKBar.Name = "chartKBar";
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Stock;
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            series1.Points.Add(dataPoint1);
+            series1.YValuesPerPoint = 4;
+            this.chartKBar.Series.Add(series1);
+            this.chartKBar.Size = new System.Drawing.Size(1178, 194);
+            this.chartKBar.TabIndex = 9;
+            this.chartKBar.Text = "chart1";
             // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1195, 744);
+            this.ClientSize = new System.Drawing.Size(1184, 762);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Font = new System.Drawing.Font("新細明體", 12F);
             this.Margin = new System.Windows.Forms.Padding(4);
@@ -734,9 +762,9 @@
             this.tabControl1.ResumeLayout(false);
             this.tpSelection.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvSelectionResult)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSelectionResult)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.tpWarrant.ResumeLayout(false);
@@ -756,6 +784,7 @@
             this.panel1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chartKBar)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -818,6 +847,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colSelectionMemo;
         private System.Windows.Forms.Label lblAlgorithms;
         private System.Windows.Forms.ToolTip toolTips;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chartKBar;
     }
 }
 

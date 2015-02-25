@@ -22,80 +22,95 @@ namespace MyStockAnalyzer.Helpers
             foreach (StockPrice priceData in source.OrderBy(s => s.Date))
             {
                 ++idx;
-                StockChartData chartData = new StockChartData();
-                chartData.PriceToday = priceData;
+                StockChartData chartDataToday = new StockChartData();
+                chartDataToday.PriceToday = priceData;
                 if (idx > 1)
                 {
-                    chartData.PriceYesterday = priceYesterday;
+                    chartDataToday.PriceYesterday = priceYesterday;
                 }
-                chartData.ChartIdx = idx;
+                chartDataToday.ChartIdx = idx;
 
-                result.Add(chartData);
+                result.Add(chartDataToday);
 
-                #region 計算MA & VMA
-                if (idx >= 5)
-                {
-                    chartData.MA5 = GetNDaysChart(result, idx, 5).Select(x => x.PriceToday.Close).Average();
-                    chartData.VMA5 = GetNDaysChart(result, idx, 5).Select(x => Convert.ToDecimal(x.PriceToday.Amount)).Average();
-                }
-                if (idx >= 10)
-                {
-                    chartData.MA10 = GetNDaysChart(result, idx, 10).Select(x => x.PriceToday.Close).Average();
-                    chartData.VMA10 = GetNDaysChart(result, idx, 10).Select(x => Convert.ToDecimal(x.PriceToday.Amount)).Average();
-                }
-                if (idx >= 20)
-                {
-                    chartData.MA20 = GetNDaysChart(result, idx, 20).Select(x => x.PriceToday.Close).Average();
-                    chartData.VMA20 = GetNDaysChart(result, idx, 20).Select(x => Convert.ToDecimal(x.PriceToday.Amount)).Average();
-                }
-                if (idx >= 60)
-                {
-                    chartData.MA60 = GetNDaysChart(result, idx, 60).Select(x => x.PriceToday.Close).Average();
-                }
-                if (idx >= 120)
-                {
-                    chartData.MA120 = GetNDaysChart(result, idx, 120).Select(x => x.PriceToday.Close).Average();
-                }
-                #endregion
+                processTechnicalAnalysisIndicators(result, idx, chartDataToday);
 
-                #region 計算RSV, K, D
-                if (idx >= 9)
-                {
-                    List<StockChartData> charts = GetNDaysChart(result, idx, 9).ToList();
-                    decimal max = charts.Select(x => x.PriceToday.High).Max();
-                    decimal min = charts.Select(x => x.PriceToday.Low).Min();
-                    if (max == min)
-                    {
-                        chartData.RSV = 50;
-                    }
-                    else
-                    {
-                        chartData.RSV = ((chartData.PriceToday.Close - min) / (max - min)) * 100;
-                    }
-
-                    chartData.KValue = (result.Where(x => x.ChartIdx == idx - 1).Single().KValue * 2 / 3) + (chartData.RSV / 3);
-                    chartData.DValue = (result.Where(x => x.ChartIdx == idx - 1).Single().DValue * 2 / 3) + (chartData.KValue / 3);
-                }
-                else
-                {
-                    chartData.RSV = 50;
-                    chartData.KValue = 50;
-                    chartData.DValue = 50;
-                }
-                #endregion
-
-                #region 計算布林通道
-                if (idx >= 20)
-                {
-                    decimal stdavg = MathHelper.CaculateStdAvg(GetNDaysChart(result, idx, 20).Select(x => x.PriceToday.Close).ToArray());
-                    chartData.BBUB = chartData.MA20 + stdavg * 2;
-                    chartData.BBLB = chartData.MA20 - stdavg * 2;
-                }
-                #endregion
-                priceYesterday = chartData.PriceToday;
+                priceYesterday = chartDataToday.PriceToday;
             }
 
             return result;
+        }
+
+        private static void processTechnicalAnalysisIndicators(List<StockChartData> result, int idx, StockChartData chartDataToday)
+        {
+            calculateMovingAverage(result, idx, chartDataToday);
+
+            calculateKDValue(result, idx, chartDataToday);
+
+            calculateBBand(result, idx, chartDataToday);
+        }
+
+        private static void calculateBBand(List<StockChartData> result, int idx, StockChartData chartDataToday)
+        {
+            if (idx >= 20)
+            {
+                decimal stdavg = MathHelper.CaculateStdAvg(GetNDaysChart(result, idx, 20).Select(x => x.PriceToday.Close).ToArray());
+                chartDataToday.BBUB = chartDataToday.MA20 + stdavg * 2;
+                chartDataToday.BBLB = chartDataToday.MA20 - stdavg * 2;
+            }
+        }
+
+        private static void calculateKDValue(List<StockChartData> result, int idx, StockChartData chartDataToday)
+        {
+            if (idx >= 9)
+            {
+                List<StockChartData> charts = GetNDaysChart(result, idx, 9).ToList();
+                decimal max = charts.Select(x => x.PriceToday.High).Max();
+                decimal min = charts.Select(x => x.PriceToday.Low).Min();
+                if (max == min)
+                {
+                    chartDataToday.RSV = 50;
+                }
+                else
+                {
+                    chartDataToday.RSV = ((chartDataToday.PriceToday.Close - min) / (max - min)) * 100;
+                }
+
+                chartDataToday.KValue = (result.Where(x => x.ChartIdx == idx - 1).Single().KValue * 2 / 3) + (chartDataToday.RSV / 3);
+                chartDataToday.DValue = (result.Where(x => x.ChartIdx == idx - 1).Single().DValue * 2 / 3) + (chartDataToday.KValue / 3);
+            }
+            else
+            {
+                chartDataToday.RSV = 50;
+                chartDataToday.KValue = 50;
+                chartDataToday.DValue = 50;
+            }
+        }
+
+        private static void calculateMovingAverage(List<StockChartData> result, int idx, StockChartData chartDataToday)
+        {
+            if (idx >= 5)
+            {
+                chartDataToday.MA5 = GetNDaysChart(result, idx, 5).Select(x => x.PriceToday.Close).Average();
+                chartDataToday.VMA5 = GetNDaysChart(result, idx, 5).Select(x => Convert.ToDecimal(x.PriceToday.Amount)).Average();
+            }
+            if (idx >= 10)
+            {
+                chartDataToday.MA10 = GetNDaysChart(result, idx, 10).Select(x => x.PriceToday.Close).Average();
+                chartDataToday.VMA10 = GetNDaysChart(result, idx, 10).Select(x => Convert.ToDecimal(x.PriceToday.Amount)).Average();
+            }
+            if (idx >= 20)
+            {
+                chartDataToday.MA20 = GetNDaysChart(result, idx, 20).Select(x => x.PriceToday.Close).Average();
+                chartDataToday.VMA20 = GetNDaysChart(result, idx, 20).Select(x => Convert.ToDecimal(x.PriceToday.Amount)).Average();
+            }
+            if (idx >= 60)
+            {
+                chartDataToday.MA60 = GetNDaysChart(result, idx, 60).Select(x => x.PriceToday.Close).Average();
+            }
+            if (idx >= 120)
+            {
+                chartDataToday.MA120 = GetNDaysChart(result, idx, 120).Select(x => x.PriceToday.Close).Average();
+            }
         }
 
         public static IEnumerable<StockChartData> GetNDaysChart(List<StockChartData> list, int currentChartIdx, int range)

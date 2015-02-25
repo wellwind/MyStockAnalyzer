@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 using Microsoft.VisualBasic.FileIO;
 using MyStockAnalyzer.Classes;
 using MyStockAnalyzer.Helpers;
@@ -54,8 +55,43 @@ namespace MyStockAnalyzer
             setStockAlgorithmsLabel();
 
             refreshWarrant();
-
+            
             txtMemo.Text = memoModel.GetMemo();
+
+            loadStockChart("0050", true);            
+        }
+
+        private void loadStockChart(string stockId, bool getRealTimeData)
+        {
+            List<Classes.StockPrice> stockPriceList = model.GetStockPriceData(new string[] { stockId }).First().Value.OrderByDescending(x => x.Date).Take(100).OrderBy(x => x.Date).ToList();
+
+            // List<MyStockAnalyzer.Classes.StockPrice> result = stockHelper.GetStockRealTimePrice
+            if (getRealTimeData)
+            {
+                List<Classes.StockPrice> realTimePrice = stockHelper.GetStockRealTimePrice(new List<Classes.StockData>() { model.GetStockDataById(stockId) }, DateTime.Now.Date);
+                if (realTimePrice.Count > 0)
+                {
+                    stockPriceList.Add(realTimePrice.First());
+                }
+            }
+            List<StockChartData> chartData = StockAnalysisHelper.StockPriceDataToChart(stockPriceList);
+
+
+            chartKBar.Series.Clear();
+            chartKBar.Series.Add("KChart");
+            chartKBar.Series[0].ChartType = SeriesChartType.Candlestick;
+
+            chartKBar.Series[0]["PriceUpColor"] = "Red";
+            chartKBar.Series[0]["PriceDownColor"] = "LimeGreen";
+
+            foreach (StockChartData data in chartData)
+            {
+                chartKBar.Series[0].Points.AddXY(data.PriceToday.Date.ToString("yyyy/MM/dd"), (double)data.PriceToday.High, (double)data.PriceToday.Low, (double)data.PriceToday.Open, (double)data.PriceToday.Close);
+                chartKBar.Series[0].Points.Last().Color = Color.Black;
+            }
+
+            chartKBar.ChartAreas[0].AxisY.Minimum =Math.Floor((double)(chartData.Select(x => x.PriceToday.Low).Min() * 0.98m));
+            chartKBar.ChartAreas[0].AxisY.Maximum = Math.Ceiling((double)(chartData.Select(x => x.PriceToday.Low).Max() * 1.02m));
         }
 
         private void setStockAlgorithmsLabel()
@@ -89,6 +125,7 @@ namespace MyStockAnalyzer
             frmBrowser.SetUrl(url);
             frmBrowser.Show();
         }
+
         #region 更新股票資訊
 
         private void btnUpdateStockData_Click(object sender, EventArgs e)
@@ -126,6 +163,22 @@ namespace MyStockAnalyzer
 
             waitedUpdateSotckPrice.Clear();
 
+            startDownloadAllstockPrice(stockDataList);
+
+            updateStockPriceWhenAllThreadDone();
+        }
+
+        private void updateStockPriceWhenAllThreadDone()
+        {
+            while (!isAllBackgroundWorkerDone())
+            {
+                Application.DoEvents();
+            }
+            model.UpdateStockPriceList(waitedUpdateSotckPrice);
+        }
+
+        private void startDownloadAllstockPrice(List<MyStockAnalyzer.Classes.StockData> stockDataList)
+        {
             foreach (MyStockAnalyzer.Classes.StockData stock in stockDataList)
             {
                 do
@@ -144,12 +197,6 @@ namespace MyStockAnalyzer
                     }
                 } while (true);
             }
-
-            while (!isAllBackgroundWorkerDone())
-            {
-                Application.DoEvents();
-            }
-            model.UpdateStockPriceList(waitedUpdateSotckPrice);
         }
 
         /// <summary>
@@ -165,11 +212,6 @@ namespace MyStockAnalyzer
                 lock (this)
                 {
                     waitedUpdateSotckPrice.AddRange(singleStockPrices);
-                    //if (waitedUpdateSotckPrice.Count() >= 1000)
-                    //{
-                    //    model.UpdateStockPriceList(waitedUpdateSotckPrice);
-                    //    waitedUpdateSotckPrice.Clear();
-                    //}
                 }
             }
         }
@@ -232,6 +274,67 @@ namespace MyStockAnalyzer
 
             // 擷取即時資料
             List<MyStockAnalyzer.Classes.StockData> stockData = model.GetAllStockData();
+            List<MyStockAnalyzer.Classes.StockPrice> realTimeData = addRealTimeTostockData(stockData);
+
+            startStockSelection(stockData, realTimeData);
+
+            sw.Stop();
+            LogHelper.SetLogMessage(String.Format("完成選股，花費 {0} 秒", (sw.ElapsedMilliseconds / 1000).ToString("0.00")));
+        }
+
+        private void startStockSelection(List<MyStockAnalyzer.Classes.StockData> stockData, List<MyStockAnalyzer.Classes.StockPrice> realTimeData)
+        {
+            // 分析股票資料
+            foreach (MyStockAnalyzer.Classes.StockData data in stockData)
+            {
+                Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> stockPrice = model.GetStockPriceData(new string[] { data.StockId }, dtSelectionBgn.Value.Date.AddMonths(-12), dtSelectionEnd.Value.Date);
+                foreach (KeyValuePair<string, List<MyStockAnalyzer.Classes.StockPrice>> kvp in stockPrice)
+                {
+                    // 如果要分析即時資料，將目前抓到的即時資料加入股價資訊中
+                    if (chkRealData.Checked && realTimeData.Where(x => x.StockId == kvp.Key).Count() > 0)
+                    {
+                        kvp.Value.AddRange(realTimeData.Where(x => x.StockId == kvp.Key));
+                    }
+                    List<StockChartData> chartData = StockAnalysisHelper.StockPriceDataToChart(kvp.Value);
+
+                    selectStockByAlgorithms(data, chartData);
+                }
+            }
+        }
+
+        private void selectStockByAlgorithms(MyStockAnalyzer.Classes.StockData data, List<StockChartData> chartData)
+        {
+            foreach (IStockSelectionAlgorithm algorithm in this.stockSelectionAlgorithms)
+            {
+                // 當演算法指定只檢查權證標的時, 忽略非權證標的個股
+                if (skipIfAlgorithmWarrantOnlyAndStockWithoutWarrant(algorithm, data))
+                {
+                    continue;
+                }
+
+                List<StockSelectionResult> result = algorithm.GetSelectionResult(chartData, dtSelectionBgn.Value.Date, dtSelectionEnd.Value.Date.AddDays(1).AddSeconds(-1));
+                foreach (StockSelectionResult ss in result)
+                {
+                    dgvSelectionResult.Rows.Add(new string[] { ss.Date.ToString("yyyy/MM/dd"), data.StockId, data.StockName, algorithm.Name, data.WarrantTarget, ss.Memo });
+                }
+            }
+        }
+
+        private bool skipIfAlgorithmWarrantOnlyAndStockWithoutWarrant(IStockSelectionAlgorithm algorithm, MyStockAnalyzer.Classes.StockData stockData)
+        {
+            if (algorithm is IStockSelectionConditionWarrantOnly)
+            {
+                if (stockData.WarrantTarget == null || !stockData.WarrantTarget.Equals("Y"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private List<Classes.StockPrice> addRealTimeTostockData(List<MyStockAnalyzer.Classes.StockData> stockData)
+        {
             List<MyStockAnalyzer.Classes.StockPrice> realTimeData = new List<MyStockAnalyzer.Classes.StockPrice>();
             if (chkRealData.Checked)
             {
@@ -252,40 +355,7 @@ namespace MyStockAnalyzer
                 }
                 tmp.Clear();
             }
-           
-            // 分析股票資料
-            foreach (MyStockAnalyzer.Classes.StockData data in stockData)
-            {
-                Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> stockPrice = model.GetStockPriceData(new string[] { data.StockId }, dtSelectionBgn.Value.Date.AddMonths(-12), dtSelectionEnd.Value.Date);
-                foreach (KeyValuePair<string, List<MyStockAnalyzer.Classes.StockPrice>> kvp in stockPrice)
-                {
-                    if (chkRealData.Checked && realTimeData.Where(x => x.StockId == kvp.Key).Count() > 0)
-                    {
-                        kvp.Value.AddRange(realTimeData.Where(x => x.StockId == kvp.Key));
-                    }
-                    List<StockChartData> chartData = StockAnalysisHelper.StockPriceDataToChart(kvp.Value);
-
-                    foreach (IStockSelectionAlgorithm algorithm in this.stockSelectionAlgorithms)
-                    {
-                        // 當演算法指定只檢查權證標的時, 忽略非權證標的個股
-                        if (algorithm is IStockSelectionConditionWarrantOnly)
-                        {
-                            if (data.WarrantTarget == null || !data.WarrantTarget.Equals("Y"))
-                            {
-                                continue;
-                            }
-                        }
-
-                        List<StockSelectionResult> result = algorithm.GetSelectionResult(chartData, dtSelectionBgn.Value.Date, dtSelectionEnd.Value.Date.AddDays(1).AddSeconds(-1));
-                        foreach (StockSelectionResult ss in result)
-                        {
-                            dgvSelectionResult.Rows.Add(new string[] { ss.Date.ToString("yyyy/MM/dd"), data.StockId, data.StockName, algorithm.Name, data.WarrantTarget, ss.Memo });
-                        }
-                    }
-                }
-            }
-            sw.Stop();
-            LogHelper.SetLogMessage(String.Format("完成選股，花費 {0} 秒", (sw.ElapsedMilliseconds / 1000).ToString("0.00")));
+            return realTimeData;
         }
 
         private void linkLblAlgorithms_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -325,8 +395,9 @@ namespace MyStockAnalyzer
         {
             if (e.ColumnIndex == colSelectionStockId.Index)
             {
-                showChartDialog(String.Format("http://histock.tw/stock/tchart.aspx?no={0}&m=b#twDayK1_pnlChart", dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockId.Name].Value.ToString()),
-                    dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockId.Name].Value.ToString() + "-" + dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockName.Name].Value.ToString());
+                //showChartDialog(String.Format("http://histock.tw/stock/tchart.aspx?no={0}&m=b#twDayK1_pnlChart", dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockId.Name].Value.ToString()),
+                //    dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockId.Name].Value.ToString() + "-" + dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockName.Name].Value.ToString());
+                loadStockChart(dgvSelectionResult.Rows[e.RowIndex].Cells[colSelectionStockId.Name].Value.ToString(), chkRealData.Checked);
             }
         }
 

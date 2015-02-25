@@ -14,7 +14,6 @@ namespace MyStockAnalyzer.StockSelectionAlgorithms.Attributes
         /// <summary>
         /// 選股演算法說明
         /// </summary>
- 
         /// <param name="Description"></param>
         public AlgorithmDescriptionAttribute(string Description)
         {
