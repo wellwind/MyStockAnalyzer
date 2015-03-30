@@ -48,7 +48,7 @@ namespace MyStockAnalyzer
         {
             LogHelper.DisplayGridView = this.dgvLog;
             dtStockEnd.Value = DateTime.Now;
-            dtStockBgn.Value = stockHelper.LastGetStockDate;
+            dtStockBgn.Value = DateTimeHelper.GetFirstDayOfMonth(DateTime.Now.Year, DateTime.Now.Month);
 
             lblAlgorithms.Text = String.Empty;
             stockSelectionAlgorithms = StockSelectionAlgorithmHelper.GetDefaultAlgorithms();
@@ -91,7 +91,7 @@ namespace MyStockAnalyzer
             }
 
             chartKBar.ChartAreas[0].AxisY.Minimum =Math.Floor((double)(chartData.Select(x => x.PriceToday.Low).Min() * 0.98m));
-            chartKBar.ChartAreas[0].AxisY.Maximum = Math.Ceiling((double)(chartData.Select(x => x.PriceToday.Low).Max() * 1.02m));
+            chartKBar.ChartAreas[0].AxisY.Maximum = Math.Ceiling((double)(chartData.Select(x => x.PriceToday.High).Max() * 1.02m));
         }
 
         private void setStockAlgorithmsLabel()

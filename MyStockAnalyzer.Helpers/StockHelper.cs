@@ -79,6 +79,7 @@ namespace MyStockAnalyzer.Helpers
 
             // 下載json
             WebClient wc = new WebClient();
+            wc.Headers.Add("User-Agent", HttpHelper.GetRandomAgent());
             wc.Encoding = Encoding.UTF8;
             string json = wc.DownloadString(String.Format(ConfigHelper.StockRealDataUrl, String.Join("|", queryStocks.ToArray()), date.ToString("yyyyMMdd")));
 
@@ -205,7 +206,7 @@ namespace MyStockAnalyzer.Helpers
             string html = wc.DownloadString(warrantTargetUrl);
             string path = html.Split(new string[] { "<select id='t111sb01' name='t111sb01' onChange='window.open(t111sb01.value);'>" }, StringSplitOptions.None)[1]
                 .Split(new string[] { "<option value='", "'>" }, StringSplitOptions.None)[1];
-
+            wc.Headers.Add("User-Agent", HttpHelper.GetRandomAgent());
             string html2 = wc.DownloadString(String.Format(ConfigHelper.WarrantTargetUrlBase, path));
             string [] sections = html2.Split(new string[] {"<table ", "</table>"}, StringSplitOptions.None);
             foreach (string section in sections)
