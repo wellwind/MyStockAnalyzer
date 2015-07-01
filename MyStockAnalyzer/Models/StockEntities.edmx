@@ -5,6 +5,14 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="StockModel.Store" Provider="System.Data.SQLite.EF6" ProviderManifestToken="ISO8601" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="EtfStock">
+          <Key>
+            <PropertyRef Name="EtfId" />
+            <PropertyRef Name="StockId" />
+          </Key>
+          <Property Name="EtfId" Type="nvarchar" MaxLength="8" Nullable="false" />
+          <Property Name="StockId" Type="nvarchar" MaxLength="8" Nullable="false" />
+        </EntityType>
         <EntityType Name="Memo">
           <Key>
             <PropertyRef Name="MemoId" />
@@ -34,6 +42,16 @@
           <Property Name="WarrantTarget" Type="nvarchar" MaxLength="1" />
           <Property Name="Updated" Type="datetime" />
         </EntityType>
+        <EntityType Name="StockDividendUrl">
+          <Key>
+            <PropertyRef Name="StockId" />
+            <PropertyRef Name="Year" />
+          </Key>
+          <Property Name="StockId" Type="nvarchar" MaxLength="8" Nullable="false" />
+          <Property Name="Year" Type="integer" Nullable="false" />
+          <Property Name="CashDividends" Type="decimal" Precision="10" Scale="2" Nullable="false" />
+          <Property Name="StockDividendUrls" Type="decimal" Precision="10" Scale="2" Nullable="false" />
+        </EntityType>
         <EntityType Name="StockPrice">
           <Key>
             <PropertyRef Name="StockId" />
@@ -48,9 +66,11 @@
           <Property Name="Amount" Type="integer" Nullable="false" />
         </EntityType>
         <EntityContainer Name="StockModelStoreContainer">
+          <EntitySet Name="EtfStock" EntityType="Self.EtfStock" store:Type="Tables" />
           <EntitySet Name="Memo" EntityType="Self.Memo" store:Type="Tables" />
           <EntitySet Name="SelectionHistory" EntityType="Self.SelectionHistory" store:Type="Tables" />
           <EntitySet Name="StockData" EntityType="Self.StockData" store:Type="Tables" />
+          <EntitySet Name="StockDividendUrl" EntityType="Self.StockDividendUrl" store:Type="Tables" />
           <EntitySet Name="StockPrice" EntityType="Self.StockPrice" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -62,6 +82,8 @@
           <EntitySet Name="StockPrice" EntityType="StockModel.StockPrice" />
           <EntitySet Name="SelectionHistory" EntityType="StockModel.SelectionHistory" />
           <EntitySet Name="Memo" EntityType="StockModel.Memo" />
+          <EntitySet Name="EtfStock" EntityType="StockModel.EtfStock" />
+          <EntitySet Name="StockDividendUrl" EntityType="StockModel.StockDividendUrl" />
         </EntityContainer>
         <EntityType Name="StockData">
           <Key>
@@ -104,6 +126,24 @@
           </Key>
           <Property Name="MemoId" Type="Int32" Nullable="false" />
           <Property Name="MemoText" Type="String" Nullable="false" MaxLength="2147483647" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="EtfStock">
+          <Key>
+            <PropertyRef Name="EtfId" />
+            <PropertyRef Name="StockId" />
+          </Key>
+          <Property Name="EtfId" Type="String" Nullable="false" MaxLength="8" FixedLength="false" Unicode="true" />
+          <Property Name="StockId" Type="String" Nullable="false" MaxLength="8" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="StockDividendUrl">
+          <Key>
+            <PropertyRef Name="StockId" />
+            <PropertyRef Name="Year" />
+          </Key>
+          <Property Name="StockId" Type="String" Nullable="false" MaxLength="8" FixedLength="false" Unicode="true" />
+          <Property Name="Year" Type="Int64" Nullable="false" />
+          <Property Name="CashDividends" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="StockDividendUrls" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -151,6 +191,24 @@
               <MappingFragment StoreEntitySet="Memo">
                 <ScalarProperty Name="MemoText" ColumnName="MemoText" />
                 <ScalarProperty Name="MemoId" ColumnName="MemoId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EtfStock">
+            <EntityTypeMapping TypeName="StockModel.EtfStock">
+              <MappingFragment StoreEntitySet="EtfStock">
+                <ScalarProperty Name="StockId" ColumnName="StockId" />
+                <ScalarProperty Name="EtfId" ColumnName="EtfId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="StockDividendUrl">
+            <EntityTypeMapping TypeName="StockModel.StockDividendUrl">
+              <MappingFragment StoreEntitySet="StockDividendUrl">
+                <ScalarProperty Name="StockDividendUrls" ColumnName="StockDividendUrls" />
+                <ScalarProperty Name="CashDividends" ColumnName="CashDividends" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="StockId" ColumnName="StockId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

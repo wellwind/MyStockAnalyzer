@@ -1,22 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
-using Microsoft.VisualBasic.FileIO;
-using MyStockAnalyzer.Classes;
+﻿using MyStockAnalyzer.Classes;
 using MyStockAnalyzer.Helpers;
 using MyStockAnalyzer.Models;
 using MyStockAnalyzer.StockSelectionAlgorithms;
 using MyStockAnalyzer.StockSelectionAlgorithms.Helpers;
 using MyStockAnalyzer.StockSelectionAlgorithms.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
+using StockDividend = MyStockAnalyzer.Classes.StockDividend;
+using ThreadState = System.Threading.ThreadState;
 
 namespace MyStockAnalyzer
 {
@@ -55,10 +56,10 @@ namespace MyStockAnalyzer
             setStockAlgorithmsLabel();
 
             refreshWarrant();
-            
+
             txtMemo.Text = memoModel.GetMemo();
 
-            loadStockChart("0050", true);            
+            loadStockChart("0050", true);
         }
 
         private void loadStockChart(string stockId, bool getRealTimeData)
@@ -76,7 +77,6 @@ namespace MyStockAnalyzer
             }
             List<StockChartData> chartData = StockAnalysisHelper.StockPriceDataToChart(stockPriceList);
 
-
             chartKBar.Series.Clear();
             chartKBar.Series.Add("KChart");
             chartKBar.Series[0].ChartType = SeriesChartType.Candlestick;
@@ -90,7 +90,7 @@ namespace MyStockAnalyzer
                 chartKBar.Series[0].Points.Last().Color = Color.Black;
             }
 
-            chartKBar.ChartAreas[0].AxisY.Minimum =Math.Floor((double)(chartData.Select(x => x.PriceToday.Low).Min() * 0.98m));
+            chartKBar.ChartAreas[0].AxisY.Minimum = Math.Floor((double)(chartData.Select(x => x.PriceToday.Low).Min() * 0.98m));
             chartKBar.ChartAreas[0].AxisY.Maximum = Math.Ceiling((double)(chartData.Select(x => x.PriceToday.High).Max() * 1.02m));
         }
 
@@ -144,13 +144,32 @@ namespace MyStockAnalyzer
             // 2. 更新大盤資訊
             LogHelper.SetLogMessage("更新大盤資訊");
 
-            // 3. 更新個股資訊
+            // 3. 更新ETF成份股
+            LogHelper.SetLogMessage("更新ETF成份股");
+            updateEtfStocks();
+
+            // 4. 更新個股資訊
             LogHelper.SetLogMessage("更新股票價格資訊");
-            updateAllStockPrice(stockDataList);
+            // updateAllStockPrice(stockDataList);
 
             LogHelper.SetLogMessage("完成");
 
             btnUpdateStockData.Enabled = true;
+        }
+
+        private void updateEtfStocks()
+        {
+            string[] targetId = { "0050", "0051" };
+            foreach (var etfId in targetId)
+            {
+                updateStocksInEtf(etfId);
+            }
+        }
+
+        private void updateStocksInEtf(string etfId)
+        {
+            var etfStocks = stockHelper.GetEtfStocks(etfId);
+            model.UpdateEtfStocksData(etfId, etfStocks);
         }
 
         /// <summary>
@@ -161,7 +180,10 @@ namespace MyStockAnalyzer
         {
             model.DeleteStockPriceByDateRange(dtStockBgn.Value, dtStockEnd.Value);
 
-            waitedUpdateSotckPrice.Clear();
+            lock (this)
+            {
+                waitedUpdateSotckPrice.Clear();
+            }
 
             startDownloadAllstockPrice(stockDataList);
 
@@ -249,7 +271,7 @@ namespace MyStockAnalyzer
             return true;
         }
 
-        #endregion
+        #endregion 更新股票資訊
 
         #region 選股Tab
 
@@ -285,24 +307,24 @@ namespace MyStockAnalyzer
         private void startStockSelection(List<MyStockAnalyzer.Classes.StockData> stockData, List<MyStockAnalyzer.Classes.StockPrice> realTimeData)
         {
             // 分析股票資料
-            foreach (MyStockAnalyzer.Classes.StockData data in stockData)
+            foreach (var data in stockData)
             {
                 Dictionary<string, List<MyStockAnalyzer.Classes.StockPrice>> stockPrice = model.GetStockPriceData(new string[] { data.StockId }, dtSelectionBgn.Value.Date.AddMonths(-12), dtSelectionEnd.Value.Date);
                 foreach (KeyValuePair<string, List<MyStockAnalyzer.Classes.StockPrice>> kvp in stockPrice)
                 {
                     // 如果要分析即時資料，將目前抓到的即時資料加入股價資訊中
-                    if (chkRealData.Checked && realTimeData.Where(x => x.StockId == kvp.Key).Count() > 0)
+                    if (chkRealData.Checked && realTimeData.Any(x => x.StockId == kvp.Key))
                     {
                         kvp.Value.AddRange(realTimeData.Where(x => x.StockId == kvp.Key));
                     }
-                    List<StockChartData> chartData = StockAnalysisHelper.StockPriceDataToChart(kvp.Value);
+                    List<MyStockAnalyzer.Classes.StockChartData> chartData = StockAnalysisHelper.StockPriceDataToChart(kvp.Value);
 
                     selectStockByAlgorithms(data, chartData);
                 }
             }
         }
 
-        private void selectStockByAlgorithms(MyStockAnalyzer.Classes.StockData data, List<StockChartData> chartData)
+        private void selectStockByAlgorithms(MyStockAnalyzer.Classes.StockData data, List<MyStockAnalyzer.Classes.StockChartData> chartData)
         {
             foreach (IStockSelectionAlgorithm algorithm in this.stockSelectionAlgorithms)
             {
@@ -401,7 +423,7 @@ namespace MyStockAnalyzer
             }
         }
 
-        #endregion
+        #endregion 選股Tab
 
         #region 權證Tab
 
@@ -410,7 +432,7 @@ namespace MyStockAnalyzer
             refreshWarrant();
         }
 
-        #endregion
+        #endregion 權證Tab
 
         #region 備註Tab
 
@@ -419,6 +441,96 @@ namespace MyStockAnalyzer
             memoModel.SaveMemo(txtMemo.Text);
         }
 
-        #endregion
+        #endregion 備註Tab
+
+        private void btnGetDividend_Click(object sender, EventArgs e)
+        {
+            StringBuilder sb = new StringBuilder();
+            List<int> years = new List<int>() { 2014, 2013, 2012, 2010, 2009 };
+
+            txtDividendResult.Clear();
+            txtDividendResult.Text += getDividendHeader(years) + "\r\n";
+
+            var etfStocks = model.GetEtfStocksData();
+
+            int cnt = 0;
+            foreach (var etfStock in etfStocks)
+            {
+                var stockPrice = model.GetStockPriceData(new string[] { etfStock.StockId });
+                var stockData = model.GetStockData(new string[] { etfStock.StockId });
+                Debug.WriteLine("{0}\t{1}", (++cnt).ToString("00"), etfStock.StockId);
+
+                var stockDividendsResult = stockHelper.GetStockDividends(etfStock.StockId);
+                string line = "";
+                decimal currentPrice = stockPrice[etfStock.StockId].OrderByDescending(stock => stock.Date).First().Close;
+
+                line = String.Format("{0}\t{1}\t{2}\t{3}\t", etfStock.EtfId, etfStock.StockId,
+                    stockData.First(stock => stock.StockId == etfStock.StockId).StockName,
+                    currentPrice.ToString("0.00"));
+
+                // 股利
+                List<decimal> dividends = new List<decimal>();
+                foreach (var year in years)
+                {
+                    if (stockDividendsResult.Any(stock => stock.Year == year))
+                    {
+                        var stockDividendData = stockDividendsResult.First(stock => stock.Year == year);
+                        dividends.Add(stockDividendData.CashDividends);
+                        line += stockDividendData.CashDividends.ToString("0.00") + "\t";
+                    }
+                    else
+                    {
+                        line += "0.00\t";
+                    }
+                }
+
+                decimal avgDividend = dividends.Sum() / 5;
+                line += String.Format("{0}\t{1}\t{2}\t{3}\t{4}\t",
+                    avgDividend.ToString("0.00"),
+                    (avgDividend * 20).ToString("0.00"), (currentPrice - avgDividend * 20).ToString("0.00"),
+                    (avgDividend * 16).ToString("0.00"), (currentPrice - avgDividend * 16).ToString("0.00"));
+
+                // 現金殖利率
+                List<decimal> cashRates = new List<decimal>();
+                foreach (var year in years)
+                {
+                    if (stockDividendsResult.Any(stock => stock.Year == year))
+                    {
+                        var stockDividendData = stockDividendsResult.First(stock => stock.Year == year);
+                        cashRates.Add(stockDividendData.CashDividendsRate);
+                        line += stockDividendData.CashDividendsRate.ToString("0.00") + "%\t";
+                    }
+                    else
+                    {
+                        line += "0.00%\t";
+                    }
+                }
+
+                decimal avgCashRate = cashRates.Sum() / 5;
+                decimal stdAvgCashRate = cashRates.Count > 0 ? MathHelper.CaculateStdAvg(cashRates.ToArray()) : 0;
+                if (stockDividendsResult.Count() == 0) stockDividendsResult.Add(new StockDividend());
+                line += String.Format("{0}%\t{1}%\t{2}%\t{3}%\t{4}\t",
+                    avgCashRate.ToString("0.00"),
+                    stdAvgCashRate.ToString("0.00"),
+                    stockDividendsResult.First().GrossMargin.ToString("0.00"),
+                    stockDividendsResult.First().ROE.ToString("0.00"),
+                    stockDividendsResult.First().EPS.ToString("0.00"));
+
+                txtDividendResult.Text += line + "\r\n";
+                txtDividendResult.SelectionStart = txtDividendResult.Text.Length;
+                Application.DoEvents();
+            }
+
+            txtDividendResult.Text += "Done";
+        }
+
+        private static string getDividendHeader(List<int> years)
+        {
+            string header = years.Aggregate("ETF\tStock Id\tStock Name\tStock Price\t", (current, year) => current + (year + "\t"));
+            header += "平均股利\t合理價格\t合理差距\t便宜價格\t便宜差距\t";
+            header = years.Aggregate(header, (current, year) => current + (year + "\t"));
+            header += "平均現金殖利率\t現金殖利率標準差\t毛利率\tROE\tEPS\t建議";
+            return header;
+        }
     }
 }

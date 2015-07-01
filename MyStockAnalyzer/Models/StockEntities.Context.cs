@@ -29,5 +29,7 @@ namespace MyStockAnalyzer.Models
         public virtual DbSet<StockPrice> StockPrice { get; set; }
         public virtual DbSet<SelectionHistory> SelectionHistory { get; set; }
         public virtual DbSet<Memo> Memo { get; set; }
+        public virtual DbSet<EtfStock> EtfStock { get; set; }
+        public virtual DbSet<StockDividend> StockDividend { get; set; }
     }
 }

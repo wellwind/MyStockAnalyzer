@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(1111D, "1,2,3,4");
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint3 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(1111D, "1,2,3,4");
             this.btnUpdateStockData = new System.Windows.Forms.Button();
             this.dtStockBgn = new System.Windows.Forms.DateTimePicker();
             this.dtStockEnd = new System.Windows.Forms.DateTimePicker();
@@ -80,6 +80,10 @@
             this.tpHistoryCollect = new System.Windows.Forms.TabPage();
             this.cmbHistoryCollect = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.tpStockDividend = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
+            this.btnGetDividend = new System.Windows.Forms.Button();
+            this.txtDividendResult = new System.Windows.Forms.TextBox();
             this.tpMemo = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.btnSaveMemo = new System.Windows.Forms.Button();
@@ -87,9 +91,9 @@
             this.btnTest = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.chartKBar = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.saveCSVDialog = new System.Windows.Forms.SaveFileDialog();
             this.toolTips = new System.Windows.Forms.ToolTip(this.components);
-            this.chartKBar = new System.Windows.Forms.DataVisualization.Charting.Chart();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLog)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tpSelection.SuspendLayout();
@@ -104,6 +108,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvWarrantStock)).BeginInit();
             this.tpWaitCollect.SuspendLayout();
             this.tpHistoryCollect.SuspendLayout();
+            this.tpStockDividend.SuspendLayout();
+            this.tableLayoutPanel5.SuspendLayout();
             this.tpMemo.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -203,6 +209,7 @@
             this.tabControl1.Controls.Add(this.tpWarrant);
             this.tabControl1.Controls.Add(this.tpWaitCollect);
             this.tabControl1.Controls.Add(this.tpHistoryCollect);
+            this.tabControl1.Controls.Add(this.tpStockDividend);
             this.tabControl1.Controls.Add(this.tpMemo);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(3, 253);
@@ -445,7 +452,7 @@
             this.tpWarrant.Location = new System.Drawing.Point(4, 26);
             this.tpWarrant.Name = "tpWarrant";
             this.tpWarrant.Padding = new System.Windows.Forms.Padding(3);
-            this.tpWarrant.Size = new System.Drawing.Size(1181, 392);
+            this.tpWarrant.Size = new System.Drawing.Size(1170, 260);
             this.tpWarrant.TabIndex = 0;
             this.tpWarrant.Text = "權證";
             this.tpWarrant.UseVisualStyleBackColor = true;
@@ -465,7 +472,7 @@
             this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(1175, 386);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(1164, 254);
             this.tableLayoutPanel3.TabIndex = 9;
             // 
             // panel4
@@ -476,7 +483,7 @@
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel4.Location = new System.Drawing.Point(3, 3);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(1169, 24);
+            this.panel4.Size = new System.Drawing.Size(1158, 24);
             this.panel4.TabIndex = 0;
             // 
             // label2
@@ -518,7 +525,7 @@
             this.dgvWarrantList.RowHeadersVisible = false;
             this.dgvWarrantList.RowTemplate.Height = 24;
             this.dgvWarrantList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvWarrantList.Size = new System.Drawing.Size(299, 350);
+            this.dgvWarrantList.Size = new System.Drawing.Size(299, 218);
             this.dgvWarrantList.TabIndex = 7;
             // 
             // dataGridViewTextBoxColumn1
@@ -554,7 +561,7 @@
             this.dgvWarrantStock.RowHeadersVisible = false;
             this.dgvWarrantStock.RowTemplate.Height = 24;
             this.dgvWarrantStock.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvWarrantStock.Size = new System.Drawing.Size(299, 350);
+            this.dgvWarrantStock.Size = new System.Drawing.Size(299, 218);
             this.dgvWarrantStock.TabIndex = 5;
             // 
             // colWarrantStockId
@@ -578,7 +585,7 @@
             this.tpWaitCollect.Location = new System.Drawing.Point(4, 26);
             this.tpWaitCollect.Name = "tpWaitCollect";
             this.tpWaitCollect.Padding = new System.Windows.Forms.Padding(3);
-            this.tpWaitCollect.Size = new System.Drawing.Size(1181, 392);
+            this.tpWaitCollect.Size = new System.Drawing.Size(1170, 260);
             this.tpWaitCollect.TabIndex = 2;
             this.tpWaitCollect.Text = "候選";
             this.tpWaitCollect.UseVisualStyleBackColor = true;
@@ -608,7 +615,7 @@
             this.tpHistoryCollect.Location = new System.Drawing.Point(4, 26);
             this.tpHistoryCollect.Name = "tpHistoryCollect";
             this.tpHistoryCollect.Padding = new System.Windows.Forms.Padding(3);
-            this.tpHistoryCollect.Size = new System.Drawing.Size(1181, 392);
+            this.tpHistoryCollect.Size = new System.Drawing.Size(1170, 260);
             this.tpHistoryCollect.TabIndex = 3;
             this.tpHistoryCollect.Text = "歷史候選";
             this.tpHistoryCollect.UseVisualStyleBackColor = true;
@@ -631,13 +638,61 @@
             this.label6.TabIndex = 19;
             this.label6.Text = "候選清單";
             // 
+            // tpStockDividend
+            // 
+            this.tpStockDividend.Controls.Add(this.tableLayoutPanel5);
+            this.tpStockDividend.Location = new System.Drawing.Point(4, 26);
+            this.tpStockDividend.Name = "tpStockDividend";
+            this.tpStockDividend.Padding = new System.Windows.Forms.Padding(3);
+            this.tpStockDividend.Size = new System.Drawing.Size(1170, 260);
+            this.tpStockDividend.TabIndex = 5;
+            this.tpStockDividend.Text = "計算股息";
+            this.tpStockDividend.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel5
+            // 
+            this.tableLayoutPanel5.ColumnCount = 1;
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel5.Controls.Add(this.btnGetDividend, 0, 0);
+            this.tableLayoutPanel5.Controls.Add(this.txtDividendResult, 0, 1);
+            this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel5.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel5.Name = "tableLayoutPanel5";
+            this.tableLayoutPanel5.RowCount = 2;
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(1164, 254);
+            this.tableLayoutPanel5.TabIndex = 10;
+            // 
+            // btnGetDividend
+            // 
+            this.btnGetDividend.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.btnGetDividend.Location = new System.Drawing.Point(1048, 4);
+            this.btnGetDividend.Margin = new System.Windows.Forms.Padding(4);
+            this.btnGetDividend.Name = "btnGetDividend";
+            this.btnGetDividend.Size = new System.Drawing.Size(112, 27);
+            this.btnGetDividend.TabIndex = 8;
+            this.btnGetDividend.Text = "取得股息資料";
+            this.btnGetDividend.UseVisualStyleBackColor = true;
+            this.btnGetDividend.Click += new System.EventHandler(this.btnGetDividend_Click);
+            // 
+            // txtDividendResult
+            // 
+            this.txtDividendResult.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtDividendResult.Location = new System.Drawing.Point(3, 38);
+            this.txtDividendResult.Multiline = true;
+            this.txtDividendResult.Name = "txtDividendResult";
+            this.txtDividendResult.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtDividendResult.Size = new System.Drawing.Size(1158, 213);
+            this.txtDividendResult.TabIndex = 0;
+            // 
             // tpMemo
             // 
             this.tpMemo.Controls.Add(this.tableLayoutPanel4);
             this.tpMemo.Location = new System.Drawing.Point(4, 26);
             this.tpMemo.Name = "tpMemo";
             this.tpMemo.Padding = new System.Windows.Forms.Padding(3);
-            this.tpMemo.Size = new System.Drawing.Size(1181, 392);
+            this.tpMemo.Size = new System.Drawing.Size(1170, 260);
             this.tpMemo.TabIndex = 4;
             this.tpMemo.Text = "備註";
             this.tpMemo.UseVisualStyleBackColor = true;
@@ -654,13 +709,13 @@
             this.tableLayoutPanel4.RowCount = 2;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(1175, 386);
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(1164, 254);
             this.tableLayoutPanel4.TabIndex = 9;
             // 
             // btnSaveMemo
             // 
             this.btnSaveMemo.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.btnSaveMemo.Location = new System.Drawing.Point(1059, 4);
+            this.btnSaveMemo.Location = new System.Drawing.Point(1048, 4);
             this.btnSaveMemo.Margin = new System.Windows.Forms.Padding(4);
             this.btnSaveMemo.Name = "btnSaveMemo";
             this.btnSaveMemo.Size = new System.Drawing.Size(112, 27);
@@ -675,7 +730,7 @@
             this.txtMemo.Location = new System.Drawing.Point(3, 38);
             this.txtMemo.Multiline = true;
             this.txtMemo.Name = "txtMemo";
-            this.txtMemo.Size = new System.Drawing.Size(1169, 345);
+            this.txtMemo.Size = new System.Drawing.Size(1158, 213);
             this.txtMemo.TabIndex = 0;
             // 
             // btnTest
@@ -723,29 +778,29 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(1184, 762);
             this.tableLayoutPanel1.TabIndex = 9;
             // 
-            // saveCSVDialog
-            // 
-            this.saveCSVDialog.Filter = "CSV檔案|*.csv";
-            // 
             // chartKBar
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chartKBar.ChartAreas.Add(chartArea1);
+            chartArea3.Name = "ChartArea1";
+            this.chartKBar.ChartAreas.Add(chartArea3);
             this.chartKBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend1.Name = "Legend1";
-            this.chartKBar.Legends.Add(legend1);
+            legend3.Name = "Legend1";
+            this.chartKBar.Legends.Add(legend3);
             this.chartKBar.Location = new System.Drawing.Point(3, 53);
             this.chartKBar.Name = "chartKBar";
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Stock;
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            series1.Points.Add(dataPoint1);
-            series1.YValuesPerPoint = 4;
-            this.chartKBar.Series.Add(series1);
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Stock;
+            series3.Legend = "Legend1";
+            series3.Name = "Series1";
+            series3.Points.Add(dataPoint3);
+            series3.YValuesPerPoint = 4;
+            this.chartKBar.Series.Add(series3);
             this.chartKBar.Size = new System.Drawing.Size(1178, 194);
             this.chartKBar.TabIndex = 9;
             this.chartKBar.Text = "chart1";
+            // 
+            // saveCSVDialog
+            // 
+            this.saveCSVDialog.Filter = "CSV檔案|*.csv";
             // 
             // FrmMain
             // 
@@ -777,6 +832,9 @@
             this.tpWaitCollect.PerformLayout();
             this.tpHistoryCollect.ResumeLayout(false);
             this.tpHistoryCollect.PerformLayout();
+            this.tpStockDividend.ResumeLayout(false);
+            this.tableLayoutPanel5.ResumeLayout(false);
+            this.tableLayoutPanel5.PerformLayout();
             this.tpMemo.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel4.PerformLayout();
@@ -848,6 +906,10 @@
         private System.Windows.Forms.Label lblAlgorithms;
         private System.Windows.Forms.ToolTip toolTips;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartKBar;
+        private System.Windows.Forms.TabPage tpStockDividend;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
+        private System.Windows.Forms.Button btnGetDividend;
+        private System.Windows.Forms.TextBox txtDividendResult;
     }
 }
 

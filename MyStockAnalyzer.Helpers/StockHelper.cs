@@ -1,17 +1,28 @@
-﻿using System;
+﻿using MyStockAnalyzer.Classes;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
-using MyStockAnalyzer.Classes;
-using Newtonsoft.Json;
 
 namespace MyStockAnalyzer.Helpers
 {
     public class StockHelper
     {
-        public DateTime LastGetStockDate { get { return DateTime.Now; } set { } }
+        public DateTime LastGetStockDate
+        {
+            get { return DateTime.Now; }
+            set { }
+        }
+
+        private static WebClient getNewWebClient()
+        {
+            var wc = new WebClient();
+            wc.Headers.Add("User-Agent", HttpHelper.GetRandomAgent());
+            wc.Encoding = Encoding.UTF8;
+            return wc;
+        }
 
         /// <summary>
         /// 下載股價資訊
@@ -20,14 +31,15 @@ namespace MyStockAnalyzer.Helpers
         /// <param name="bgnDate"></param>
         /// <param name="endDate"></param>
         /// <returns></returns>
-        public List<MyStockAnalyzer.Classes.StockPrice> GetStockPriceDataList(MyStockAnalyzer.Classes.StockData stock, DateTime bgnDate, DateTime endDate)
+        public List<StockPrice> GetStockPriceDataList(StockData stock, DateTime bgnDate, DateTime endDate)
         {
             List<MyStockAnalyzer.Classes.StockPrice> result = new List<MyStockAnalyzer.Classes.StockPrice>();
             // 列舉每個月分出來
             for (DateTime fetchDate = bgnDate; fetchDate <= endDate; fetchDate = fetchDate.AddMonths(1))
             {
                 // 抓取股票價格
-                List<MyStockAnalyzer.Classes.StockPrice> stockPrices = downloadStockPriceData(stock, fetchDate, stock.Class == "上市" ? "1" : "2");
+                List<MyStockAnalyzer.Classes.StockPrice> stockPrices = downloadStockPriceData(stock, fetchDate,
+                    stock.Class == "上市" ? "1" : "2");
                 result.AddRange(stockPrices.Where(s => s.Date >= bgnDate && s.Date <= endDate));
             }
 
@@ -78,20 +90,21 @@ namespace MyStockAnalyzer.Helpers
             }
 
             // 下載json
-            WebClient wc = new WebClient();
-            wc.Headers.Add("User-Agent", HttpHelper.GetRandomAgent());
-            wc.Encoding = Encoding.UTF8;
-            string json = wc.DownloadString(String.Format(ConfigHelper.StockRealDataUrl, String.Join("|", queryStocks.ToArray()), date.ToString("yyyyMMdd")));
+            var wc = getNewWebClient();
+            var json =
+                wc.DownloadString(String.Format(ConfigHelper.StockRealDataUrl, String.Join("|", queryStocks.ToArray()),
+                    date.ToString("yyyyMMdd")));
 
             // 分析json資料
             StockRealData realData = JsonConvert.DeserializeObject<StockRealData>(json);
-            if (realData.msgArray.Count() > 0)
+            if (realData.msgArray.Any())
             {
                 foreach (Msgarray msg in realData.msgArray)
                 {
                     StockPrice price = new StockPrice();
                     price.StockId = msg.c.Trim();
-                    price.Date = date;// Convert.ToDateTime(String.Format("{0} {1}", date.ToString("yyyy/MM/dd"), realData.queryTime.sysTime));
+                    price.Date = date;
+                    // Convert.ToDateTime(String.Format("{0} {1}", date.ToString("yyyy/MM/dd"), realData.queryTime.sysTime));
                     price.Open = Convert.ToDecimal(msg.o);
                     price.High = Convert.ToDecimal(msg.h);
                     price.Low = Convert.ToDecimal(msg.l);
@@ -113,11 +126,12 @@ namespace MyStockAnalyzer.Helpers
         {
             List<StockData> result = new List<StockData>();
 
-            WebClient wc = new WebClient();
+            WebClient wc = getNewWebClient();
             string text = wc.DownloadString(url);
             string[] data = text.Split(new string[] { "</table>" }, StringSplitOptions.RemoveEmptyEntries);
 
-            string dataListText = HtmlRemovalHelper.StripTagsCharArray(data[1].Replace("</tr>", "[NR]</tr>").Replace("</td>", "[TAB]"));
+            string dataListText =
+                HtmlRemovalHelper.StripTagsCharArray(data[1].Replace("</tr>", "[NR]</tr>").Replace("</td>", "[TAB]"));
             string[] dataList = dataListText.Split(new string[] { "[NR]" }, StringSplitOptions.RemoveEmptyEntries);
 
             string currentType = "";
@@ -135,12 +149,13 @@ namespace MyStockAnalyzer.Helpers
                         currentType = "";
                     }
                 }
-                else if(!String.IsNullOrEmpty(currentType))
+                else if (!String.IsNullOrEmpty(currentType))
                 {
                     string[] fields2 = line.Split(new string[] { "[TAB]" }, StringSplitOptions.None);
                     StockData stockData = new StockData();
                     stockData.StockId = fields2[0].Split(new string[] { " ", "\t", "　" }, StringSplitOptions.None).First();
-                    stockData.StockName = fields2[0].Split(new string[] { " ", "\t", "　" }, StringSplitOptions.None).Last();
+                    stockData.StockName =
+                        fields2[0].Split(new string[] { " ", "\t", "　" }, StringSplitOptions.None).Last();
                     stockData.Class = fields2[3];
                     stockData.Industry = String.IsNullOrEmpty(fields2[4]) ? currentType : fields2[4];
                     result.Add(stockData);
@@ -157,9 +172,9 @@ namespace MyStockAnalyzer.Helpers
         {
             List<string> result = new List<string>();
             // 上市ETF權證標的
-            result.AddRange(downloadWarrantTargetETFStockIds(ConfigHelper.WarrantTargetETFUrl1));
+            result.AddRange(downloadWarrantTargetETFStockIds(ConfigHelper.WarrantTargetEtfUrl1));
             // 上櫃ETF權證標的
-            result.AddRange(downloadWarrantTargetETFStockIds(ConfigHelper.WarrantTargetETFUrl2));
+            result.AddRange(downloadWarrantTargetETFStockIds(ConfigHelper.WarrantTargetEtfUrl2));
             // 上市股票權證標的
             result.AddRange(downloadWarrantTargetStockIds(ConfigHelper.WarrantTargetStockUrl1));
             // 上櫃股票權證標的
@@ -175,12 +190,15 @@ namespace MyStockAnalyzer.Helpers
         private List<string> downloadWarrantTargetETFStockIds(string warrantTargetETFUrl)
         {
             List<string> result = new List<string>();
-            WebClient wc = new WebClient();
+            WebClient wc = getNewWebClient();
+
             string htmlEtf = wc.DownloadString(warrantTargetETFUrl);
             string[] tmp = htmlEtf.Split(new string[] { "<TR class='even'>", "<TR class='odd'>" }, StringSplitOptions.None);
             foreach (string row in tmp.Skip(1))
             {
-                string[] fields = row.Split(new string[] { "<TD style='text-align:left !important;'>", "<TD>", "</TD>", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] fields =
+                    row.Split(new string[] { "<TD style='text-align:left !important;'>", "<TD>", "</TD>", "\n", "\r" },
+                        StringSplitOptions.RemoveEmptyEntries);
                 if (fields.Count() > 0)
                 {
                     string etfId = fields[0].Replace("&nbsp;", "").Trim();
@@ -192,7 +210,7 @@ namespace MyStockAnalyzer.Helpers
             }
             return result;
         }
-        
+
         /// <summary>
         /// 下載上市櫃股票可為權證標的
         /// </summary>
@@ -201,19 +219,25 @@ namespace MyStockAnalyzer.Helpers
         private List<string> downloadWarrantTargetStockIds(string warrantTargetUrl)
         {
             List<string> result = new List<string>();
-            WebClient wc = new WebClient();
+            var wc = getNewWebClient();
+
             // 找到最近更新的權證標的路徑
             string html = wc.DownloadString(warrantTargetUrl);
-            string path = html.Split(new string[] { "<select id='t111sb01' name='t111sb01' onChange='window.open(t111sb01.value);'>" }, StringSplitOptions.None)[1]
-                .Split(new string[] { "<option value='", "'>" }, StringSplitOptions.None)[1];
-            wc.Headers.Add("User-Agent", HttpHelper.GetRandomAgent());
+            string path =
+                html.Split(
+                    new string[] { "<select id='t111sb01' name='t111sb01' onChange='window.open(t111sb01.value);'>" },
+                    StringSplitOptions.None)[1]
+                    .Split(new string[] { "<option value='", "'>" }, StringSplitOptions.None)[1];
+
             string html2 = wc.DownloadString(String.Format(ConfigHelper.WarrantTargetUrlBase, path));
-            string [] sections = html2.Split(new string[] {"<table ", "</table>"}, StringSplitOptions.None);
+            string[] sections = html2.Split(new string[] { "<table ", "</table>" }, StringSplitOptions.None);
             foreach (string section in sections)
             {
                 if (section.Contains("<colgroup>"))
                 {
-                    string[] fields = section.Split(new string[] { "<tr><td>&nbsp;", "</td><td>&nbsp;", "</td></tr>", "\r", "\n" }, StringSplitOptions.None).Skip(3).Where(x => !String.IsNullOrEmpty(x)).ToArray();
+                    string[] fields =
+                        section.Split(new string[] { "<tr><td>&nbsp;", "</td><td>&nbsp;", "</td></tr>", "\r", "\n" },
+                            StringSplitOptions.None).Skip(3).Where(x => !String.IsNullOrEmpty(x)).ToArray();
                     int idx = 0;
                     foreach (string field in fields)
                     {
@@ -239,13 +263,15 @@ namespace MyStockAnalyzer.Helpers
         /// <param name="fetchDate"></param>
         /// <param name="type">1: 上市, 2: 上櫃</param>
         /// <returns></returns>
-        private List<MyStockAnalyzer.Classes.StockPrice> downloadStockPriceData(MyStockAnalyzer.Classes.StockData stock, DateTime fetchDate, string type)
+        private List<MyStockAnalyzer.Classes.StockPrice> downloadStockPriceData(MyStockAnalyzer.Classes.StockData stock,
+            DateTime fetchDate, string type)
         {
             List<MyStockAnalyzer.Classes.StockPrice> result = new List<MyStockAnalyzer.Classes.StockPrice>();
             string downloadUrl = String.Format(type == "1" ? ConfigHelper.StockPriceUrl1 : ConfigHelper.StockPriceUrl2,
-                type == "1" ? fetchDate.Year.ToString() : (fetchDate.Year - 1911).ToString("000"), fetchDate.Month.ToString("00"), stock.StockId);
+                type == "1" ? fetchDate.Year.ToString() : (fetchDate.Year - 1911).ToString("000"),
+                fetchDate.Month.ToString("00"), stock.StockId);
 
-            WebClient wc = new WebClient();
+            WebClient wc = getNewWebClient();
             string csvText = wc.DownloadString(downloadUrl);
             string[] lines = csvText.Split(new string[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in lines.Skip(type == "1" ? 2 : 5))
@@ -256,14 +282,18 @@ namespace MyStockAnalyzer.Helpers
                 string[] fields = CSVHelper.ParseCSVLine(line, ",");
                 if (fields.Length == 9)
                 {
-                    if (fields[3].Equals("--") || fields[4].Equals("--") || fields[5].Equals("--") || fields[6].Equals("--"))
+                    if (fields[3].Equals("--") || fields[4].Equals("--") || fields[5].Equals("--") ||
+                        fields[6].Equals("--"))
                     {
                         continue;
                     }
 
-                    string[] strDate = (fields[0].Trim().StartsWith("1") ? fields[0].Trim().Substring(0, 9) : fields[0].Trim().Substring(0, 8)).Split(new string[] {"/"}, StringSplitOptions.None);
+                    string[] strDate =
+                        (fields[0].Trim().StartsWith("1")
+                            ? fields[0].Trim().Substring(0, 9)
+                            : fields[0].Trim().Substring(0, 8)).Split(new string[] { "/" }, StringSplitOptions.None);
                     int year = Convert.ToInt32(strDate[0]);
-                    if(year < 1000) year += 1911;
+                    if (year < 1000) year += 1911;
                     DateTime date = new DateTime(year, Convert.ToInt32(strDate[1]), Convert.ToInt32(strDate[2]));
                     // date = date.AddYears(1911);
 
@@ -295,6 +325,100 @@ namespace MyStockAnalyzer.Helpers
             }
 
             return result;
+        }
+
+        public List<EtfStock> GetEtfStocks(string etfId)
+        {
+            var result = new List<EtfStock>();
+
+            if (!ConfigHelper.StockEtfUrl.ContainsKey(etfId)) return result;
+
+            var wc = getNewWebClient();
+            var html = wc.DownloadString(ConfigHelper.StockEtfUrl[etfId]);
+            var rows = html.Split(new string[] { "<tr class=tb2>" }, StringSplitOptions.None).Skip(1).ToArray();
+            result.AddRange(
+                rows.Select(
+                    singleRowHtml =>
+                        singleRowHtml.Split(new[] { "<td align=center>", "</td>", "</tr>" }, StringSplitOptions.None))
+                    .Select(fields => new EtfStock { ETfId = etfId, StockId = fields[1].Trim() }));
+
+            return result;
+        }
+
+        public List<StockDividend> GetStockDividends(string stockId)
+        {
+            var wc = getNewWebClient();
+            var html =
+                wc.DownloadString(String.Format(ConfigHelper.StockDividendUrl, stockId))
+                    .Replace("\r", "")
+                    .Replace("\n", "");
+
+            decimal grossMargin = getDividendsBasic(html, "營業毛利率");
+            decimal ROE = getDividendsBasic(html, "股東權益報酬率");
+            decimal EPS = getDividendsBasic(html, "第1季") + getDividendsBasic(html, "第2季") +
+                          getDividendsBasic(html, "第3季") + getDividendsBasic(html, "第4季");
+
+            string[] rows =
+                html.Split(
+                    new string[]
+                    {
+                        "</tr><tr class=\"gvtb-l_row\" align=\"center\">",
+                        "</tr><tr class=\"gvtb-l_al\" align=\"center\">"
+                    }, StringSplitOptions.None);
+
+            return (from row in rows
+                    where row.Replace("\t", "").StartsWith("<td>") && row.Replace("\t", "").EndsWith("</td>")
+                    select row.Replace("\t", "").Split(new string[] { "<td>", "</td>" }, StringSplitOptions.RemoveEmptyEntries)
+                        into fields
+                        select new StockDividend()
+                        {
+                            StockId = stockId,
+                            Year = Convert.ToInt32(fields[0]),
+                            StockDividends = tryConvertToDecimal(fields[3]),
+                            CashDividends = tryConvertToDecimal(fields[4]),
+                            CashDividendsRate = tryConvertToDecimal(fields[6].Replace("%", "")),
+                            Price = tryConvertToDecimal(fields[5]),
+                            EPS = EPS,
+                            ROE = ROE,
+                            GrossMargin = grossMargin
+                        }).ToList();
+        }
+
+        private decimal tryConvertToDecimal(string input)
+        {
+            decimal result;
+            if (Decimal.TryParse(input, out result))
+            {
+                return result;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        private decimal getDividendsBasic(string html, string name)
+        {
+            try
+            {
+                return Convert.ToDecimal(html
+                    .Split(new string[] { name }, StringSplitOptions.None).Last()
+                    .Split(
+                        new string[]
+                        {
+                            "<td class=\"cont\" style=\"width:80px\">",
+                            "<td class=\"cont\" style=\"width:70px\">",
+                            "<td class=\"cont\" style=\"width:60px\">",
+                            "<td class=\"cont\">",
+                            "</td>"
+                        }, StringSplitOptions.None)
+                    .Skip(2)
+                    .First()
+                    .Replace("%", "")
+                    .Replace("元", ""));
+            }
+            catch { }
+            return 0;
         }
     }
 }

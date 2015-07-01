@@ -9,6 +9,8 @@
         <EntityTypeShape EntityType="StockModel.StockPrice" Width="1.5" PointX="3.375" PointY="0.75" />
         <EntityTypeShape EntityType="StockModel.SelectionHistory" Width="1.5" PointX="0.75" PointY="3.75" />
         <EntityTypeShape EntityType="StockModel.Memo" Width="1.5" PointX="3.375" PointY="4.75" />
+        <EntityTypeShape EntityType="StockModel.EtfStock" Width="1.5" PointX="5.375" PointY="0.75" />
+        <EntityTypeShape EntityType="StockModel.StockDividend" Width="1.5" PointX="5.375" PointY="3.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,8 @@ namespace MyStockAnalyzer.Models
 {
     public class StockModel
     {
-        StockEntities _db;
+        private StockEntities _db;
+
         public StockModel()
         {
             _db = new StockEntities();
@@ -98,9 +100,10 @@ namespace MyStockAnalyzer.Models
                     }).SingleOrDefault();
         }
 
-        #endregion
+        #endregion 取得股票名稱資訊
 
         #region 取得股價資訊
+
         /// <summary>
         /// 取得所有的股票價格資訊
         /// </summary>
@@ -195,7 +198,7 @@ namespace MyStockAnalyzer.Models
             return result;
         }
 
-        #endregion
+        #endregion 取得股價資訊
 
         /// <summary>
         /// 更新股票代碼資訊
@@ -290,6 +293,28 @@ namespace MyStockAnalyzer.Models
             _db.StockPrice.RemoveRange(dat);
             // _db.Database.ExecuteSqlCommand(String.Format("DELETE FROM StockPrice WHERE [Date] >= '{0}' AND [Date] <= '{1}'", dtBgn.ToString("yyyy-MM-dd"), dtEnd.ToString("yyyy-MM-dd")));
             _db.SaveChanges();
+        }
+
+        public void UpdateEtfStocksData(string etfId, List<Classes.EtfStock> etfStocks)
+        {
+            var dat = from s in _db.EtfStock where s.EtfId == etfId select s;
+            _db.EtfStock.RemoveRange(dat);
+            _db.SaveChanges();
+
+            foreach (var stock in etfStocks)
+            {
+                _db.EtfStock.Add(new EtfStock()
+                {
+                    EtfId = stock.ETfId,
+                    StockId = stock.StockId
+                });
+            }
+            _db.SaveChanges();
+        }
+
+        public List<EtfStock> GetEtfStocksData()
+        {
+            return (from s in _db.EtfStock orderby s.EtfId, s.StockId select s).ToList();
         }
     }
 }

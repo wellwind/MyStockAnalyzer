@@ -14,39 +14,52 @@ namespace MyStockAnalyzer.Classes
         public int ChartIdx { get; set; }
 
         public StockPrice PriceYesterday { get; set; }
+
         public StockPrice PriceToday { get; set; }
 
         #region 技術分析屬性
+
         public decimal MA5 { get; set; }
+
         public decimal MA10 { get; set; }
+
         public decimal MA20 { get; set; }
+
         public decimal MA60 { get; set; }
+
         public decimal MA120 { get; set; }
 
         public decimal VMA5 { get; set; }
+
         public decimal VMA10 { get; set; }
+
         public decimal VMA20 { get; set; }
 
         public decimal RSV { get; set; }
+
         public decimal KValue { get; set; }
+
         public decimal DValue { get; set; }
 
         /// <summary>
         /// 20日收盤標準差
         /// </summary>
         public decimal StdAvg20 { get; set; }
+
         /// <summary>
         /// 布林通道上緣
         /// </summary>
         public decimal BBUB { get; set; }
+
         /// <summary>
         /// 布林通道下緣
         /// </summary>
         public decimal BBLB { get; set; }
-        #endregion
+
+        #endregion 技術分析屬性
 
         #region 線圖分析屬性
-    
+
         /// <summary>
         /// 取得漲停板的價位
         /// </summary>
@@ -99,15 +112,15 @@ namespace MyStockAnalyzer.Classes
             get { return IsLimitUp || IsLimitDown; }
         }
 
-        #endregion
+        #endregion 線圖分析屬性
 
         private decimal getPriceLimitUpOrDown(string limitType)
         {
             // reference: http://stock7.0123456789.tw/
 
             double price = PriceYesterday == null ? Convert.ToDouble(PriceToday.Close) : Convert.ToDouble(PriceYesterday.Close);
-            double limitUp = price * 1.07;
-            double limitDown = price * 0.93;
+            double limitUp = price * (PriceToday.Date >= new DateTime(2015, 6, 1) ? 1.10 : 1.07);
+            double limitDown = price * (PriceToday.Date >= new DateTime(2015, 6, 1) ? 0.90 : 0.93);
             double STOCKUP = 0, STOCKDW = 0;
             if (limitUp < 10 && limitDown < 10)
             {
@@ -164,6 +177,5 @@ namespace MyStockAnalyzer.Classes
                 return Convert.ToDecimal(STOCKDW);
             }
         }
-
     }
 }

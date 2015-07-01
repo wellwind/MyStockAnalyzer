@@ -92,6 +92,9 @@
     <Compile Include="FrmMain.Designer.cs">
       <DependentUpon>FrmMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\EtfStock.cs">
+      <DependentUpon>StockEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Memo.cs">
       <DependentUpon>StockEntities.tt</DependentUpon>
     </Compile>
@@ -100,6 +103,9 @@
       <DependentUpon>StockEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\StockData.cs">
+      <DependentUpon>StockEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\StockDividend.cs">
       <DependentUpon>StockEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\StockEntities.Context.cs">

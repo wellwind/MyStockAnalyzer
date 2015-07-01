@@ -39,9 +39,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EtfStock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StockChartData.cs" />
     <Compile Include="StockData.cs" />
+    <Compile Include="StockDividend.cs" />
     <Compile Include="StockPrice.cs" />
     <Compile Include="StockRealData.cs" />
   </ItemGroup>
